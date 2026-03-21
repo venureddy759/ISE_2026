@@ -1,22 +1,46 @@
-import { useEffect, useState } from "react";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import LoginPage from "./pages/LoginPage";
+import RegisterPage from "./pages/RegisterPage";
+import DashboardPage from "./pages/DashboardPage";
+import ProtectedRoute from "./routes/ProtectedRoutes";
+import PublicRoute from "./routes/PublicRoute";
 
 function App() {
-  const [msg, setMsg] = useState<string>("Loading...");
-
-  useEffect(() => {
-    fetch("http://localhost:3000")
-      .then((res) => res.text())
-      .then((data) => setMsg(data))
-      .catch((err) => {
-        console.error(err);
-        setMsg("Error connecting to backend ❌");
-      });
-  }, []);
-
   return (
-    <div>
-      <h1>{msg}</h1>
-    </div>
+    <BrowserRouter>
+      <Routes>
+
+        {/* Public routes */}
+        <Route
+          path="/"
+          element={
+            <PublicRoute>
+              <LoginPage />
+            </PublicRoute>
+          }
+        />
+
+        <Route
+          path="/register"
+          element={
+            <PublicRoute>
+              <RegisterPage />
+            </PublicRoute>
+          }
+        />
+
+        {/* Protected route */}
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute>
+              <DashboardPage />
+            </ProtectedRoute>
+          }
+        />
+
+      </Routes>
+    </BrowserRouter>
   );
 }
 
