@@ -1,0 +1,17 @@
+# Version Requirements
+
+Git >= 2.x
+Node.js >= 18
+npm >= 9
+NestJS CLI (latest)
+Flutter
+PostgreSQL (latest stable)
+Google Chrome (latest)
+Visual Studio Code (latest)
+
+
+# Tested Environment
+
+Node.js 24.x
+npm 11.x
+Windows OS
