@@ -1,18 +1,17 @@
-PolicyLens Complete Setup Guide
+Policy Overload & Citizen Awareness Platform
 
+A full-stack web application designed to help citizens and small businesses stay updated with government policy changes, notifications, and amendments in a simplified and accessible way.
 
-Prerequisites
+Tech Stack:
+Frontend: Flutter, ReactJs
+Backend: Nest.js
+Database: PostgreSQL
+Authentication: Firebase
+AI: Gemini API
+Storage: Supabase
+Collaboration: GitHub, Jira
 
-Git
-Node.js
-npm
-NestJS
-Flutter
-Android Studio / Visual Studio Code
-Firebase
-PostgreSQL
-Google Chrome
-
+PolicyLens Complete Setup Guide:
 
 1. Clone the Repository
 
