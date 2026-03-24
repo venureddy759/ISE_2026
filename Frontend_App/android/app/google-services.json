@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "407701761523",
+    "project_id": "policylens-9a800",
+    "storage_bucket": "policylens-9a800.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:407701761523:android:f1873d83f62c1f313eb686",
+        "android_client_info": {
+          "package_name": "com.example.policylens"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD825uuPdiBm7oJeMgp01tOYxmNeTVjNhY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
