@@ -3,9 +3,15 @@ PolicyLens Complete Setup Guide
 
 Prerequisites
 
-Node.js (v18 or above)
-npm
 Git
+Node.js
+npm
+NestJS
+Flutter
+Android Studio / Visual Studio Code
+Firebase
+PostgreSQL
+Google Chrome
 
 
 1. Clone the Repository
