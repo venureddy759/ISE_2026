@@ -9,26 +9,33 @@ function Sidebar({ setActiveTab, activeTab }: any) {
 
   return (
     <div className="fixed top-14 left-0 w-60 h-[calc(100vh-56px)] bg-gray-900 p-4 space-y-2">
-      
-      <p
-        onClick={() => setActiveTab("dashboard")}
-        className={getClass("dashboard")}
-      >
+
+      <p onClick={() => setActiveTab("dashboard")} className={getClass("dashboard")}>
         🏠 Dashboard
       </p>
 
-      <p
-        onClick={() => setActiveTab("updates")}
-        className={getClass("updates")}
-      >
+      <p onClick={() => setActiveTab("updates")} className={getClass("updates")}>
         📢 Updates
       </p>
 
-      <p
-        onClick={() => setActiveTab("reports")}
-        className={getClass("reports")}
-      >
+      <p onClick={() => setActiveTab("categories")} className={getClass("categories")}>
+        📂 Categories
+      </p>
+
+      <p onClick={() => setActiveTab("search")} className={getClass("search")}>
+        🔍 Search Policies
+      </p>
+
+      <p onClick={() => setActiveTab("reports")} className={getClass("reports")}>
         📊 Reports
+      </p>
+
+      <p onClick={() => setActiveTab("saved")} className={getClass("saved")}>
+        ⭐ Saved Policies
+      </p>
+
+      <p onClick={() => setActiveTab("settings")} className={getClass("settings")}>
+        ⚙️ Settings
       </p>
 
     </div>

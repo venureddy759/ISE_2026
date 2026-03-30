@@ -7,4 +7,8 @@ export default {
     extend: {},
   },
   plugins: [require("daisyui")],
+
+  daisyui: {
+    themes: ["light"], // ✅ FORCE LIGHT MODE
+  },
 };
