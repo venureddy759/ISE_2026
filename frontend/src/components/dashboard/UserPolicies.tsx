@@ -1,7 +1,5 @@
 function UserPolicies({ policies }: any) {
   return (
-    <div className="bg-white rounded-xl shadow p-4">
-      <h3 className="font-semibold mb-4">Recent Updates</h3>
 
       <div className="space-y-3">
         {policies.map((p: any) => (
@@ -14,7 +12,6 @@ function UserPolicies({ policies }: any) {
           </div>
         ))}
       </div>
-    </div>
   );
 }
 
