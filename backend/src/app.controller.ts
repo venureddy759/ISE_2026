@@ -10,10 +10,10 @@ export class AppController {
     return "Backend is working benchod!";
   }
 
-  @Get('stats')
+  @Get('stats') 
   getStats() {
     return {
-      totalPolicies: 120,
+      totalPolicies: 12000,
       categories: [
         { name: "Health", count: 30 },
         { name: "Finance", count: 40 },

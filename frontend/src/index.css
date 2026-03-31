@@ -6,6 +6,20 @@ input:-webkit-autofill {
   -webkit-box-shadow: 0 0 0 1000px white inset !important;
   -webkit-text-fill-color: #1f2937 !important;
 }
+
+.recharts-wrapper:focus,
+.recharts-layer:focus,
+.recharts-bar-rectangle:focus,
+.recharts-rectangle:focus,
+.recharts-sector:focus,
+.recharts-dot:focus {
+  outline: none !important;
+}
+svg:focus {
+  outline: none !important;
+}
+
+
 /* 
 :root {
   --text: #6b6375;
