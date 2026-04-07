@@ -7,7 +7,6 @@ export class AuthService {
   async verifyGoogleToken(token: string) {
     const decoded = await admin.auth().verifyIdToken(token);
     
-    console.log("Decoded token:", decoded);
     return {
       uid: decoded.uid,
       email: decoded.email,
