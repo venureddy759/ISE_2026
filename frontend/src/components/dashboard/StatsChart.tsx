@@ -10,6 +10,7 @@ import {
 } from "recharts";
 
 function StatsChart({ data }: any) {
+  console.log("Chart data:", data);
   return (
     <ResponsiveContainer width="100%" height={300}>
       <BarChart data={data} barCategoryGap={40}>
@@ -20,12 +21,15 @@ function StatsChart({ data }: any) {
         {/* AXIS */}
         <XAxis
           dataKey="name"
-          tick={{ fill: "#6b7280", fontSize: 12 }}
+          interval={0}
+          angle={-20}
+          textAnchor="end"
+          tick={{ fill: "#6b7280", fontSize: 10 }}
           axisLine={false}
           tickLine={false}
         />
         <YAxis
-          tick={{ fill: "#6b7280", fontSize: 12 }}
+          tick={{ fill: "#6b7280", fontSize: 10 }}
           axisLine={false}
           tickLine={false}
         />

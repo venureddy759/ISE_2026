@@ -1,38 +1,47 @@
-import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
+import {
+  PieChart,
+  Pie,
+  Cell,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+} from "recharts";
 
-const COLORS = ["#6366f1", "#22c55e", "#f59e0b", "#ef4444", "#14b8a6"];
+const COLORS = ["#3b82f6", "#10b981", "#f59e0b", "#ef4444", "#6366f1", "#14b8a6"];
 
 function PolicyPieChart({ data }: any) {
+
+  const renderLabel = (entry: any) => {
+    const total = data.reduce((sum: number, d: any) => sum + d.count, 0);
+    const percent = ((entry.count / total) * 100).toFixed(0);
+    return `${percent}%`;
+  };
+
   return (
     <ResponsiveContainer width="100%" height={300}>
       <PieChart>
-
-        <Tooltip
-          contentStyle={{
-            borderRadius: "12px",
-            border: "none",
-            backdropFilter: "blur(8px)",
-            background: "rgba(255,255,255,0.9)",
-            boxShadow: "0 8px 24px rgba(0,0,0,0.1)",
-          }}
-        />
 
         <Pie
           data={data}
           dataKey="count"
           nameKey="name"
-          innerRadius={60}   // 🔥 donut
-          outerRadius={90}
-          paddingAngle={4}
+          innerRadius={60}
+          outerRadius={100}
+          paddingAngle={3}
+          label={renderLabel}
         >
           {data.map((_: any, index: number) => (
-            <Cell
-              key={index}
-              fill={COLORS[index % COLORS.length]}
-              className="hover:opacity-80 transition"
-            />
+            <Cell key={index} fill={COLORS[index % COLORS.length]} />
           ))}
         </Pie>
+
+        {/* Tooltip */}
+        <Tooltip
+          formatter={(value: any, name: any) => [`${value}`, name]}
+        />
+
+        {/* Legend */}
+        <Legend verticalAlign="bottom" height={36} />
 
       </PieChart>
     </ResponsiveContainer>
