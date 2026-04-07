@@ -7,6 +7,10 @@ input:-webkit-autofill {
   -webkit-text-fill-color: #1f2937 !important;
 }
 
+body {
+  color: #111827; /* Tailwind text-gray-900 */
+}
+
 .recharts-wrapper:focus,
 .recharts-layer:focus,
 .recharts-bar-rectangle:focus,
