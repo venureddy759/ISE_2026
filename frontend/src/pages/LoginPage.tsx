@@ -2,20 +2,72 @@ import { useNavigate, Link } from "react-router-dom";
 import { useState } from "react";
 import { login } from "../utils/auth";
 import bgImage from "../assets/Images/Login_page_background.jpg";
+import { auth } from "../firebase";
+import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import { signInWithEmailAndPassword } from "firebase/auth";
 
 function LoginPage() {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const handleLogin = (e: React.FormEvent) => {
+
+  const handleGoogleLogin = async () => {
+    try {
+      const provider = new GoogleAuthProvider();
+      const result = await signInWithPopup(auth, provider);
+
+      const user = result.user;
+
+      // 🔥 THIS IS IMPORTANT (JWT TOKEN)
+      const token = await user.getIdToken();
+
+      console.log("JWT Token:", token);
+
+
+      // Send token to backend
+      await fetch("http://localhost:3000/auth/google", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ token }),
+      });
+      localStorage.setItem("isLoggedIn", "true");
+      localStorage.setItem("token", token);
+      console.log("Token sent to backend successfully");
+      navigate("/dashboard");
+
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (email && password) {
-      login();
+    try {
+      const res = await signInWithEmailAndPassword(auth, email, password);
+
+      const token = await res.user.getIdToken();
+
+      // send to backend
+      await fetch("http://localhost:3000/auth/google", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ token }),
+      });
+      
+      localStorage.setItem("isLoggedIn", "true");
+      localStorage.setItem("token", token);
+
       navigate("/dashboard");
-    } else {
-      alert("Enter credentials");
+
+    } catch (err) {
+      console.error(err);
+      alert("Invalid credentials");
     }
   };
 
@@ -81,6 +133,20 @@ function LoginPage() {
             >
               Log in
             </button>
+
+            <div className="mt-4">
+            <button
+              onClick={handleGoogleLogin}
+              type="button"
+              className="w-full flex items-center justify-center gap-2 border border-gray-300 py-2.5 rounded-lg text-sm font-medium hover:bg-gray-100 transition"
+            >
+              <img
+                src="https://www.svgrepo.com/show/475656/google-color.svg"
+                className="w-5 h-5"
+              />
+              Continue with Google
+            </button>
+          </div>
 
           </form>
 
