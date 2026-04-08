@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import '../../../shared/widgets/primary_button.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class LoginScreen extends StatelessWidget {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
-
+  String email = "";
+  String password = "";
+  final _auth = FirebaseAuth.instance;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -12,10 +15,7 @@ class LoginScreen extends StatelessWidget {
       body: Stack(
         children: [
           SizedBox.expand(
-            child: Image.asset(
-              "assets/images/policylens.png",
-              fit: BoxFit.cover,
-            ),
+            child: Image.asset("assets/images/222.png", fit: BoxFit.cover),
           ),
           Container(
             decoration: BoxDecoration(
@@ -37,6 +37,9 @@ class LoginScreen extends StatelessWidget {
                     labelText: "Email",
                     border: OutlineInputBorder(),
                   ),
+                  onChanged: (value) {
+                    email = value;
+                  },
                 ),
                 SizedBox(height: 20),
                 TextField(
@@ -46,9 +49,31 @@ class LoginScreen extends StatelessWidget {
                     labelText: "Password",
                     border: OutlineInputBorder(),
                   ),
+                  onChanged: (value) {
+                    password = value;
+                  },
                 ),
                 SizedBox(height: 30),
-                PrimaryButton(text: "Login", onPressed: () {}),
+                PrimaryButton(
+                  text: "Login",
+                  onPressed: () async {
+                    try {
+                      final newUser = await _auth.signInWithEmailAndPassword(
+                        email: email,
+                        password: password,
+                      );
+                      final user = _auth.currentUser;
+                      if (user != null) {
+                        Navigator.pushReplacementNamed(context, "/home");
+                        print(user.uid);
+                        print("       ");
+                        print(await user.getIdToken());
+                      }
+                    } catch (e) {
+                      print(e);
+                    }
+                  },
+                ),
                 TextButton(
                   onPressed: () {
                     Navigator.pushNamed(context, "/register");

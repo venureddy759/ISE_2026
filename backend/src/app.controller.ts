@@ -7,6 +7,7 @@ export class AppController {
 
   @Get()
   getHello(): string {
-    return "Backend is working benchod!";
+    console.log("Hello World!");
+    return "Backend is working fine!";
   }
 }
