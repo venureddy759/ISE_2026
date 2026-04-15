@@ -1,6 +1,16 @@
 Policy Overload & Citizen Awareness Platform
 
-A full-stack web application designed to help citizens and small businesses stay updated with government policy changes, notifications, and amendments in a simplified and accessible way.
+A full-stack web application designed to help citizens and small businesses stay updated with government policy changes, notifications, and amendments in a simplified and accessible way. and provides the following software qualities:
+
+Security —Security is ensured using Firebase Authentication and JWT-based token verification.
+
+Usability —The application is designed with a mobile-first approach, providing a clean UI, simple navigation flow, and minimal user effort to access relevant policies.
+
+Reliability —Reliability is achieved through a modular architecture where each component (frontend, backend, AI, database) operates independently, ensuring stable and predictable system behavior.
+
+Consistency —Consistency is maintained through reusable UI components, centralized theming, and standardized API responses, ensuring a uniform experience across the application
+
+
 
 Tech Stack:
 Frontend: Flutter, ReactJs

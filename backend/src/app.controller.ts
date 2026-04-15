@@ -28,19 +28,43 @@ export class AppController {
 
   // 📢 Recent global policies
   @Get('policies/recent')
-  getRecentPolicies() {
-    return [
-      { id: 1, title: "New Drug Regulation", date: "2026-03-01" },
-      { id: 2, title: "GST Update for Small Shops", date: "2026-03-05" },
-    ];
-  }
+getRecentPolicies() {
+  return [
+    {
+      id: 1,
+      title: "New Drug Regulation",
+      date: "2026-03-01",
+      description:
+        "This policy introduces updated regulations for drug approval and distribution across pharmacies.",
+    },
+    {
+      id: 2,
+      title: "GST Update for Small Shops",
+      date: "2026-03-05",
+      description:
+        "New GST rules applicable to small retail shops with simplified tax filing procedures.",
+    },
+  ];
+}
 
-  // 👤 User-specific policies
-  @Get('policies/user/:userId')
-  getUserPolicies(@Param('userId') userId: string) {
-    return [
-      { id: 101, title: `Policy for user ${userId}`, date: "2026-03-10" },
-      { id: 102, title: "Local Business Tax Change", date: "2026-03-12" },
-    ];
-  }
+// 👤 User-specific policies
+@Get('policies/user/:userId')
+getUserPolicies(@Param('userId') userId: string) {
+  return [
+    {
+      id: 101,
+      title: `Policy for user ${userId}`,
+      date: "2026-03-10",
+      description:
+        "Custom policy tailored based on user business type and compliance requirements.",
+    },
+    {
+      id: 102,
+      title: "Local Business Tax Change",
+      date: "2026-03-12",
+      description:
+        "Changes in local taxation rules affecting small and medium businesses.",
+    },
+  ];
+}
 }

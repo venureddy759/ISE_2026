@@ -5,20 +5,15 @@ import {
   YAxis,
   Tooltip,
   ResponsiveContainer,
-  Cell,
   CartesianGrid,
 } from "recharts";
 
 function StatsChart({ data }: any) {
-  console.log("Chart data:", data);
   return (
     <ResponsiveContainer width="100%" height={300}>
       <BarChart data={data} barCategoryGap={40}>
-
-        {/* GRID */}
         <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#eee" />
 
-        {/* AXIS */}
         <XAxis
           dataKey="name"
           interval={0}
@@ -34,7 +29,6 @@ function StatsChart({ data }: any) {
           tickLine={false}
         />
 
-        {/* TOOLTIP */}
         <Tooltip
           cursor={{ fill: "rgba(0,0,0,0.04)" }}
           contentStyle={{
@@ -46,7 +40,6 @@ function StatsChart({ data }: any) {
           }}
         />
 
-        {/* GRADIENT */}
         <defs>
           <linearGradient id="barGradient" x1="0" y1="0" x2="0" y2="1">
             <stop offset="5%" stopColor="#6366f1" stopOpacity={0.9} />
@@ -54,13 +47,11 @@ function StatsChart({ data }: any) {
           </linearGradient>
         </defs>
 
-        {/* BAR */}
         <Bar
           dataKey="count"
           radius={[10, 10, 0, 0]}
           fill="url(#barGradient)"
         />
-
       </BarChart>
     </ResponsiveContainer>
   );

@@ -1,6 +1,5 @@
 import { useNavigate, Link } from "react-router-dom";
 import { useState } from "react";
-import { login } from "../utils/auth";
 import bgImage from "../assets/Images/Login_page_background.jpg";
 import { auth } from "../firebase";
 import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
@@ -11,21 +10,16 @@ function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-
   const handleGoogleLogin = async () => {
     try {
       const provider = new GoogleAuthProvider();
       const result = await signInWithPopup(auth, provider);
 
       const user = result.user;
-
-      // 🔥 THIS IS IMPORTANT (JWT TOKEN)
       const token = await user.getIdToken();
 
       console.log("JWT Token:", token);
 
-
-      // Send token to backend
       await fetch("http://localhost:3000/auth/google", {
         method: "POST",
         headers: {
@@ -37,7 +31,6 @@ function LoginPage() {
       localStorage.setItem("token", token);
       console.log("Token sent to backend successfully");
       navigate("/dashboard");
-
     } catch (err) {
       console.error(err);
     }
@@ -48,10 +41,8 @@ function LoginPage() {
 
     try {
       const res = await signInWithEmailAndPassword(auth, email, password);
-
       const token = await res.user.getIdToken();
 
-      // send to backend
       await fetch("http://localhost:3000/auth/google", {
         method: "POST",
         headers: {
@@ -59,12 +50,10 @@ function LoginPage() {
         },
         body: JSON.stringify({ token }),
       });
-      
+
       localStorage.setItem("isLoggedIn", "true");
       localStorage.setItem("token", token);
-
       navigate("/dashboard");
-
     } catch (err) {
       console.error(err);
       alert("Invalid credentials");
@@ -73,43 +62,34 @@ function LoginPage() {
 
   return (
     <div className="min-h-screen flex">
-
-      {/* Left side — background image */}
       <div
-        className="flex-1 hidden md:block bg-cover bg-center relative"
+        className="relative hidden flex-1 bg-cover bg-center md:block"
         style={{ backgroundImage: `url(${bgImage})` }}
       >
-        {/* Optional dark overlay for contrast */}
         <div className="absolute inset-0 bg-black/20" />
 
-        {/* Optional branding on top of image */}
         <div className="absolute bottom-10 left-10 text-grey">
           <h1 className="text-3xl font-bold tracking-tight">PolicyLens</h1>
-          <p className="text-sm text-grey/70 mt-1">Secure. Compliant. Reliable.</p>
+          <p className="mt-1 text-sm text-grey/70">Secure. Compliant. Reliable.</p>
         </div>
       </div>
 
-      {/* Right side — login panel */}
-      <div className="w-full md:w-[420px] flex-shrink-0 bg-white flex items-center justify-center px-10 py-16 shadow-2xl" >
+      <div className="flex w-full flex-shrink-0 items-center justify-center bg-white px-10 py-16 shadow-2xl md:w-[420px]">
         <div className="w-full max-w-sm">
-
-          {/* Header */}
           <div className="mb-8">
             <h2 className="text-2xl font-semibold text-gray-800">Welcome back</h2>
-            <p className="text-sm text-gray-500 mt-1">Log in to your account to continue</p>
+            <p className="mt-1 text-sm text-gray-500">Log in to your account to continue</p>
           </div>
 
-          {/* Form */}
           <form onSubmit={handleLogin} className="space-y-4">
-
-            <div className="flex flex-col gap-1 ">
+            <div className="flex flex-col gap-1">
               <label className="text-sm font-medium text-gray-700">Email</label>
               <input
                 type="email"
                 placeholder="you@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className=" bg-white text-gray-900 w-full border border-gray-200 px-3 py-2.5 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2.5 text-sm text-gray-900 transition focus:border-transparent focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
 
@@ -120,47 +100,43 @@ function LoginPage() {
               </div>
               <input
                 type="password"
-                placeholder="••••••••"
+                placeholder="Password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className=" bg-white text-gray-900 w-full border border-gray-200 px-3 py-2.5 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2.5 text-sm text-gray-900 transition focus:border-transparent focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
 
             <button
               type="submit"
-              className="w-full bg-blue-600 hover:bg-blue-700 active:scale-[0.98] text-white py-2.5 rounded-lg text-sm font-medium transition-all duration-150 mt-2"
+              className="mt-2 w-full rounded-lg bg-blue-600 py-2.5 text-sm font-medium text-white transition-all duration-150 hover:bg-blue-700 active:scale-[0.98]"
             >
               Log in
             </button>
 
             <div className="mt-4">
-            <button
-              onClick={handleGoogleLogin}
-              type="button"
-              className="w-full flex items-center justify-center gap-2 border border-gray-300 py-2.5 rounded-lg text-sm font-medium hover:bg-gray-100 transition"
-            >
-              <img
-                src="https://www.svgrepo.com/show/475656/google-color.svg"
-                className="w-5 h-5"
-              />
-              Continue with Google
-            </button>
-          </div>
-
+              <button
+                onClick={handleGoogleLogin}
+                type="button"
+                className="flex w-full items-center justify-center gap-2 rounded-lg border border-gray-300 py-2.5 text-sm font-medium transition hover:bg-gray-100"
+              >
+                <img
+                  src="https://www.svgrepo.com/show/475656/google-color.svg"
+                  className="h-5 w-5"
+                />
+                Continue with Google
+              </button>
+            </div>
           </form>
 
-          {/* Footer */}
-          <p className="text-center mt-6 text-sm text-gray-500">
+          <p className="mt-6 text-center text-sm text-gray-500">
             Don't have an account?{" "}
-            <Link to="/register" className="text-blue-500 hover:underline font-medium">
+            <Link to="/register" className="font-medium text-blue-500 hover:underline">
               Register
             </Link>
           </p>
-
         </div>
       </div>
-
     </div>
   );
 }
