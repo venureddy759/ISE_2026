@@ -11,7 +11,11 @@ import {
 function StatsChart({ data }: any) {
   return (
     <ResponsiveContainer width="100%" height={300}>
-      <BarChart data={data} barCategoryGap={40}>
+      <BarChart
+        data={data}
+        barCategoryGap={12}
+        margin={{ top: 8, right: 8, left: -16, bottom: 20 }}
+      >
         <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#eee" />
 
         <XAxis
@@ -49,6 +53,8 @@ function StatsChart({ data }: any) {
 
         <Bar
           dataKey="count"
+          barSize={34}
+          maxBarSize={42}
           radius={[10, 10, 0, 0]}
           fill="url(#barGradient)"
         />

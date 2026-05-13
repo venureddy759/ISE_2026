@@ -5,8 +5,12 @@ import RecentUpdates from "../RecentUpdates";
 import StatsChart from "../StatsChart";
 import SummaryCards from "../SummaryCards";
 import UserPolicies from "../UserPolicies";
+import { AnimatePresence, motion } from "framer-motion";
+import {useRotatingIndianTitle} from "../../../hooks/useRotatingIndianTitle";
 
 function DashboardOverview({ stats, recent, userPolicies, onSelectPolicy }: any) {
+  const brandVariant = useRotatingIndianTitle();
+
   return (
     <div className="space-y-6">
       <section className="relative overflow-hidden rounded-[32px] border border-white/80 bg-[linear-gradient(135deg,rgba(15,23,42,0.96),rgba(30,41,59,0.94))] px-6 py-6 text-white shadow-[0_30px_90px_rgba(15,23,42,0.2)] md:px-8 md:py-8">
@@ -17,7 +21,19 @@ function DashboardOverview({ stats, recent, userPolicies, onSelectPolicy }: any)
           <div className="max-w-3xl">
             <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/10 px-3 py-1 text-xs uppercase tracking-[0.28em] text-sky-100">
               <Sparkles size={14} />
-              Dashboard Overview
+              Dashboard Overview •
+                <AnimatePresence mode="wait">
+                  <motion.span
+                    key={brandVariant.current.language}
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -8 }}
+                    transition={{ duration: 0.35 }}
+                    className="inline-block ml-1"
+                  >
+                    {brandVariant.current.text}
+                  </motion.span>
+                </AnimatePresence>
             </div>
             <h1 className="mt-4 text-3xl font-semibold tracking-tight text-white md:text-4xl">
               A wider command center for your policy workflow
@@ -25,14 +41,24 @@ function DashboardOverview({ stats, recent, userPolicies, onSelectPolicy }: any)
             <p className="mt-3 max-w-2xl text-sm text-slate-300 md:text-base">
               Your charts, summaries, and update feeds now stretch across the full dashboard width while keeping the same navigation and interaction flow.
             </p>
+            <AnimatePresence mode="wait">
+  <motion.p
+    key={brandVariant.current.text}
+    initial={{ opacity: 0, y: 12, scale: 0.98 }}
+    animate={{ opacity: 1, y: 0, scale: 1 }}
+    exit={{ opacity: 0, y: -12, scale: 0.98 }}
+    transition={{ duration: 0.45 }}
+    className="mt-4 text-lg font-medium text-sky-100"
+  >
+    {brandVariant.current.text} is your command center for policy insights, where you can explore, analyze, and stay informed with ease.
+  </motion.p>
+</AnimatePresence>
           </div>
 
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 xl:w-[460px]">
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-2 xl:w-[240px]">
             {[
-              { label: "Policies", value: stats?.totalPolicies ?? 0 },
-              { label: "Categories", value: stats?.categories?.length ?? 0 },
               { label: "Recent", value: recent?.length ?? 0 },
-              { label: "Saved", value: userPolicies?.length ?? 0 },
+              { label: "Personal", value: userPolicies?.length ?? 0 },
             ].map((item) => (
               <div key={item.label} className="rounded-2xl border border-white/10 bg-white/10 px-4 py-3 backdrop-blur">
                 <p className="text-[11px] uppercase tracking-[0.2em] text-slate-300">{item.label}</p>
