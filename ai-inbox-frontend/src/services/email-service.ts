@@ -60,7 +60,10 @@ export function normalizeEmail(email: Partial<Email>): Email {
     subject,
     preview: textOrFallback(email.preview, content.slice(0, 140)),
     content,
-    translatedContent: textOrFallback(email.translatedContent, content),
+    translatedContent:
+      typeof email.translatedContent === "string" && email.translatedContent.trim()
+        ? email.translatedContent
+        : null,
     category,
     priority,
     severity: email.severity ?? null,

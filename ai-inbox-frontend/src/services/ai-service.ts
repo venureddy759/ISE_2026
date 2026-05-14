@@ -56,6 +56,10 @@ export const aiService = {
     const { data } = await api.post<Email>(`/ai/summarize/${emailId}`);
     return normalizeEmail(data);
   },
+  async translateEmail(emailId: string) {
+    const { data } = await api.post<Email>(`/ai/translate/${emailId}`);
+    return normalizeEmail(data);
+  },
   async analyzeAll() {
     const { data } = await api.post("/ai/analyze-all");
     return data;

@@ -83,6 +83,10 @@ export function EmailDetailsPage() {
         const summarizedEmail = await aiService.summarizeEmail(email.id);
         setEmail(summarizedEmail);
       }}
+      onTranslate={async () => {
+        const translatedEmail = await aiService.translateEmail(email.id);
+        setEmail(translatedEmail);
+      }}
     />
   );
 }

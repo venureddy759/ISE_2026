@@ -72,16 +72,19 @@ export function EmailDetail({
   backPath = "/inbox",
   showSuggestionsPanel = true,
   onSummarize,
+  onTranslate,
 }: {
   email: Email;
   backPath?: string;
   showSuggestionsPanel?: boolean;
   onSummarize?: () => Promise<void>;
+  onTranslate?: () => Promise<void>;
 }) {
   const { t } = useTranslation();
   const [mode, setMode] = useState<"original" | "translated">("original");
   const [showSummary, setShowSummary] = useState(false);
   const [summaryLoading, setSummaryLoading] = useState(false);
+  const [translationLoading, setTranslationLoading] = useState(false);
   const navigate = useNavigate();
   const openCompose = useComposeStore((state) => state.openCompose);
   const removeEmail = useInboxStore((state) => state.removeEmail);
@@ -175,10 +178,24 @@ export function EmailDetail({
             <Button
               size="sm"
               variant={mode === "translated" ? "default" : "outline"}
-              onClick={() => setMode("translated")}
+              disabled={translationLoading}
+              onClick={async () => {
+                setMode("translated");
+
+                if (!onTranslate || email.translatedContent) {
+                  return;
+                }
+
+                setTranslationLoading(true);
+                try {
+                  await onTranslate();
+                } finally {
+                  setTranslationLoading(false);
+                }
+              }}
             >
               <Languages className="mr-2 h-4 w-4" />
-              {t("translated")}
+              {translationLoading ? "Translating..." : t("translated")}
             </Button>
           </div>
         </div>
