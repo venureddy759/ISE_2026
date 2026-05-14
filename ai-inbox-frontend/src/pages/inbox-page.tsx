@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { CategoryFilter } from "@/components/inbox/category-filter";
 import { EmailList } from "@/components/inbox/email-list";
@@ -6,11 +6,15 @@ import { EmailPagination, getPaginatedEmails } from "@/components/inbox/email-pa
 import { EmailSummaryPanel } from "@/components/inbox/email-summary-panel";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useTranslation } from "@/i18n/use-translation";
+import { aiService } from "@/services/ai-service";
 import { useInboxStore } from "@/store/inbox-store";
+import type { Email } from "@/types/email";
 
 export function InboxPage() {
   const { t } = useTranslation();
   const [page, setPage] = useState(1);
+  const [summarizingEmailId, setSummarizingEmailId] = useState<string | null>(null);
+  const [summarizedEmailIds, setSummarizedEmailIds] = useState<Set<string>>(() => new Set());
   const navigate = useNavigate();
   const {
     emails,
@@ -23,6 +27,7 @@ export function InboxPage() {
     selectEmail,
     setCategory,
     toggleStarred,
+    removeEmail,
   } = useInboxStore();
 
   useEffect(() => {
@@ -31,6 +36,25 @@ export function InboxPage() {
   }, [category, fetchEmails]);
 
   const pagination = useMemo(() => getPaginatedEmails(emails, page), [emails, page]);
+  const summarizePreviewEmail = useCallback(
+    async (email: Email) => {
+      if (summarizedEmailIds.has(email.id) || summarizingEmailId === email.id) {
+        return;
+      }
+
+      setSummarizingEmailId(email.id);
+      try {
+        const summarizedEmail = await aiService.summarizeEmail(email.id);
+        selectEmail(summarizedEmail);
+        setSummarizedEmailIds((current) => new Set(current).add(email.id));
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setSummarizingEmailId(null);
+      }
+    },
+    [selectEmail, summarizedEmailIds, summarizingEmailId],
+  );
 
   return (
     <div className="flex h-[calc(100vh-7rem)] min-h-[620px] flex-col overflow-hidden rounded-lg border border-border/70 bg-card shadow-sm">
@@ -76,6 +100,9 @@ export function InboxPage() {
                     navigate(`/email/${email.id}`, { state: { from: "/inbox" } });
                   }}
                   onToggleStarred={toggleStarred}
+                  onDelete={(email) => {
+                    void removeEmail(email.id);
+                  }}
                 />
               </div>
               <EmailPagination
@@ -95,6 +122,8 @@ export function InboxPage() {
             <EmailSummaryPanel
               email={selectedEmail}
               onClose={clearSelectedEmail}
+              loading={summarizingEmailId === selectedEmail.id}
+              onSummarize={summarizePreviewEmail}
               onOpen={(email) => {
                 selectEmail(email);
                 markAsRead(email.id);

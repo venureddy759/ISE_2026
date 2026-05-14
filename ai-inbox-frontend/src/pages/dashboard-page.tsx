@@ -15,7 +15,7 @@ export function DashboardPage() {
 
       <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
         <StatCard label="Unread Focus" value="18" helper="High-signal messages waiting for action." icon={<Sparkles className="h-5 w-5" />} />
-        <StatCard label="AI Drafts" value="24" helper="Mock suggestion engine ready for real model wiring." icon={<Bot className="h-5 w-5" />} />
+        <StatCard label="AI Drafts" value="24" helper="Draft workspace ready for real model wiring." icon={<Bot className="h-5 w-5" />} />
         <StatCard label="Work Emails" value="42" helper="Categorized into productivity-first views." icon={<BriefcaseBusiness className="h-5 w-5" />} />
         <StatCard label="Semantic Queries" value="9" helper="Recent natural-language search prompts." icon={<Search className="h-5 w-5" />} />
       </div>

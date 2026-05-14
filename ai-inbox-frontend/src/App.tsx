@@ -4,6 +4,7 @@ import { ProtectedRoute } from "./routes/protected-route";
 import { PublicRoute } from "./routes/public-route";
 import { InboxPage } from "./pages/inbox-page";
 import { AiInboxPage } from "./pages/ai-inbox-page";
+import { BinPage } from "./pages/bin-page";
 import { EmailDetailsPage } from "./pages/email-details-page";
 import { DraftsPage } from "./pages/drafts-page";
 import { LoginPage } from "./pages/login-page";
@@ -29,6 +30,7 @@ export default function App() {
           <Route path="/sent" element={<SentPage />} />
           <Route path="/drafts" element={<DraftsPage />} />
           <Route path="/starred" element={<StarredPage />} />
+          <Route path="/bin" element={<BinPage />} />
           <Route path="/ai-inbox" element={<AiInboxPage />} />
           <Route path="/email/:emailId" element={<EmailDetailsPage />} />
           <Route path="/emails/:emailId" element={<EmailDetailsPage />} />

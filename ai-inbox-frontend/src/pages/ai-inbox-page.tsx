@@ -7,7 +7,6 @@ import {
   CheckCircle2,
   Clock3,
   ExternalLink,
-  PenLine,
   Sparkles,
   Target,
   X,
@@ -32,7 +31,6 @@ type SummarySection = {
   title: string;
   description: string;
   emails: Array<Email | AiDashboardEmail>;
-  reason: (email: Email | AiDashboardEmail) => string;
 };
 
 function getSummary(email: { summary?: unknown }) {
@@ -45,6 +43,21 @@ function getSummary(email: { summary?: unknown }) {
   }
 
   return "No AI summary available yet.";
+}
+
+function getSummaryActionItems(email: Email | AiDashboardEmail) {
+  if (email.summary && typeof email.summary === "object" && "actionItems" in email.summary) {
+    const actionItems = email.summary.actionItems;
+    if (Array.isArray(actionItems)) {
+      return actionItems.filter(Boolean).map(String);
+    }
+  }
+
+  if ("extractedTask" in email && email.extractedTask) {
+    return [email.extractedTask];
+  }
+
+  return [];
 }
 
 function formatDeadlineLabel(value?: string | null) {
@@ -171,10 +184,6 @@ function SummaryModal({
                         </Button>
                       </div>
                       <p className="mt-3 text-sm text-muted-foreground">{getSummary(email)}</p>
-                      <div className="mt-3 rounded-lg bg-muted/40 p-3 text-sm">
-                        <span className="font-semibold">Why AI included this: </span>
-                        <span className="text-muted-foreground">{item.reason(email)}</span>
-                      </div>
                     </div>
                   ))}
                 </div>
@@ -199,11 +208,24 @@ export function AiInboxPage() {
   const firstName = user?.name?.trim().split(/\s+/)[0] || "there";
   const highPriorityEmails = emails.filter((email) => email.priority === "High");
   const emailsWithTasks = emails.filter((email) => (email.tasks ?? []).length > 0);
-  const waitingForReplies = emails.filter((email) => (email.replySuggestions ?? []).length > 0);
+  const waitingForReplies = emails.filter((email) => Boolean(email.waitingForResponse));
   const autoResolved = emails.filter((email) => email.isRead && (email.tasks ?? []).length === 0);
   const importantEmails = dashboard?.importantForYou ?? [];
-  const recommendedActions = emails
-    .flatMap((email) => (email.tasks ?? []).map((task) => ({ ...task, email })))
+  const recommendedActionEmails = [
+    ...importantEmails,
+    ...(dashboard?.deadlines ?? []),
+    ...(dashboard?.waitingForReplies ?? []),
+    ...emails,
+  ];
+  const recommendedActions = recommendedActionEmails
+    .flatMap((email) =>
+      getSummaryActionItems(email).map((text, index) => ({
+        id: `${email.id}-summary-action-${index}`,
+        text,
+        completed: false,
+        email,
+      })),
+    )
     .slice(0, 4);
 
   useEffect(() => {
@@ -233,35 +255,30 @@ export function AiInboxPage() {
       title: "Full AI Summary",
       description: "A consolidated last-week communication summary across attention, deadlines, replies, and resolved mail.",
       emails,
-      reason: () => "This email contributes to the overall communication picture for the week.",
     },
     {
       key: "attention",
       title: "Needs Attention",
       description: "Unread or high-priority emails that likely need your next decision.",
       emails: dashboard?.needsAttention ?? [],
-      reason: () => "The classification model marked this email as needing attention.",
     },
     {
       key: "deadlines",
       title: "Deadlines",
       description: "Emails with extracted tasks or action items that can become reminders.",
       emails: dashboard?.deadlines ?? [],
-      reason: () => "The classification model marked this email as having a deadline in the next 7 days.",
     },
     {
       key: "waiting",
       title: "Waiting for Replies",
-      description: "Conversations where AI found reply suggestions or response paths.",
+      description: "Conversations that appear to be waiting on someone else.",
       emails: dashboard?.waitingForReplies ?? [],
-      reason: () => "The classification model marked this email as waiting for your response.",
     },
     {
       key: "resolved",
       title: "Auto Resolved",
       description: "Read messages without extracted tasks that appear low effort or already handled.",
       emails: dashboard?.autoResolved ?? [],
-      reason: () => "It is already read and AI found no pending extracted tasks.",
     },
   ], [dashboard, emails]);
   const activeSection = summarySections.find((section) => section.key === activeSummary) ?? null;
@@ -368,12 +385,14 @@ export function AiInboxPage() {
             </div>
           )}
           {importantEmails.map((email) => {
-            const firstTask = email.extractedTask ?? "Review and respond";
+            const firstTask = getSummaryActionItems(email)[0] ?? "Review and respond";
             const deadline = formatDeadlineLabel(email.deadline);
             return (
-              <div
+              <button
                 key={email.id}
-                className="grid gap-4 rounded-xl border border-rose-100 bg-card p-4 shadow-sm transition hover:border-rose-200 hover:shadow-md dark:border-rose-900/30 md:grid-cols-[auto_1.2fr_0.7fr_0.9fr_0.8fr_auto] md:items-center"
+                type="button"
+                className="grid w-full gap-4 rounded-xl border border-rose-100 bg-card p-4 text-left shadow-sm transition hover:border-rose-200 hover:shadow-md dark:border-rose-900/30 md:grid-cols-[auto_1.2fr_0.7fr_0.9fr_0.8fr] md:items-center"
+                onClick={() => navigate(`/email/${email.id}`, { state: { from: "/ai-inbox" } })}
               >
                 <div className="grid h-11 w-11 place-items-center rounded-full bg-gradient-to-br from-orange-500 to-rose-500 text-lg font-semibold text-white">
                   {email.sender.slice(0, 1).toUpperCase()}
@@ -399,15 +418,7 @@ export function AiInboxPage() {
                   </p>
                   <Badge>{email.category}</Badge>
                 </div>
-                <Button
-                  variant="outline"
-                  className="rounded-xl border-rose-200 text-rose-600 hover:bg-rose-50 dark:border-rose-900"
-                  onClick={() => navigate(`/email/${email.id}`, { state: { from: "/ai-inbox" } })}
-                >
-                  Open Email
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
-              </div>
+              </button>
             );
           })}
         </div>
@@ -428,7 +439,7 @@ export function AiInboxPage() {
             <Target className="mt-1 h-5 w-5 text-rose-500" />
             <div>
               <h2 className="text-xl font-semibold">Recommended Actions</h2>
-              <p className="mt-1 text-sm text-muted-foreground">AI suggests these actions to save your time</p>
+              <p className="mt-1 text-sm text-muted-foreground">Action items detected across your inbox</p>
             </div>
           </div>
           <Button variant="ghost" className="text-blue-600">
@@ -444,7 +455,7 @@ export function AiInboxPage() {
             email,
           }))).map((action, index) => {
             const actions = [
-              { label: "Draft Reply", icon: PenLine, className: "bg-rose-100 text-rose-600 hover:bg-rose-100/80" },
+              { label: "Open Email", icon: ArrowRight, className: "bg-rose-100 text-rose-600 hover:bg-rose-100/80" },
               { label: "Pay Now", icon: ExternalLink, className: "bg-emerald-100 text-emerald-700 hover:bg-emerald-100/80" },
               { label: "Set Reminder", icon: Bell, className: "bg-blue-100 text-blue-700 hover:bg-blue-100/80" },
               { label: "View Calendar", icon: Calendar, className: "bg-violet-100 text-violet-700 hover:bg-violet-100/80" },

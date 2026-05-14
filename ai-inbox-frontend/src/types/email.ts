@@ -8,15 +8,7 @@ export type EmailCategory =
 
 export type EmailPriority = "High" | "Medium" | "Low";
 
-export type EmailFolder = "inbox" | "sent" | "draft";
-
-export type ReplySuggestionType = "professional" | "friendly" | "short";
-
-export interface ReplySuggestion {
-  id: string;
-  type: ReplySuggestionType;
-  content: string;
-}
+export type EmailFolder = "inbox" | "sent" | "draft" | "bin";
 
 export interface EmailSummary {
   shortSummary: string;
@@ -59,7 +51,6 @@ export interface Email {
   isRead: boolean;
   isStarred: boolean;
   summary?: EmailSummary | string | null;
-  replySuggestions?: ReplySuggestion[] | null;
   tasks?: EmailTask[] | null;
   readReceipt?: EmailReadReceipt | null;
 }

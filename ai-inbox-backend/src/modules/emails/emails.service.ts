@@ -5,6 +5,7 @@ import { CreateEmailDto } from "./dto/create-email.dto";
 import { CreateEmailReplyDto } from "./dto/create-email-reply.dto";
 import { FilterEmailsDto } from "./dto/filter-emails.dto";
 import { UpdateEmailDto } from "./dto/update-email.dto";
+import { EmailFolder } from "../../common/enums/email-folder.enum";
 import { Email } from "./entities/email.entity";
 import { EmailReply } from "./entities/email-reply.entity";
 
@@ -87,8 +88,8 @@ export class EmailsService {
 
   async remove(id: string) {
     const email = await this.findOne(id);
-    await this.emailsRepository.remove(email);
-    return { message: "Email deleted successfully" };
+    email.folder = EmailFolder.BIN;
+    return this.emailsRepository.save(email);
   }
 
   findByCategory(category: string) {

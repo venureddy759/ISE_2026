@@ -3,6 +3,7 @@ import { useLocation, useParams } from "react-router-dom";
 import { EmailDetail } from "@/components/inbox/email-detail";
 import { Card } from "@/components/ui/card";
 import { mockEmails } from "@/data/mock-emails";
+import { aiService } from "@/services/ai-service";
 import { emailService, normalizeEmail } from "@/services/email-service";
 import { useInboxStore } from "@/store/inbox-store";
 
@@ -78,6 +79,10 @@ export function EmailDetailsPage() {
       email={email}
       backPath={backPath}
       showSuggestionsPanel={email.folder !== "sent" && backPath !== "/sent"}
+      onSummarize={async () => {
+        const summarizedEmail = await aiService.summarizeEmail(email.id);
+        setEmail(summarizedEmail);
+      }}
     />
   );
 }
