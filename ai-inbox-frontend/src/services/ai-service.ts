@@ -1,4 +1,6 @@
 import type { EmailCategory, EmailPriority } from "@/types/email";
+import type { Email } from "@/types/email";
+import { normalizeEmail } from "./email-service";
 import { api } from "./api";
 
 export type AiDashboardEmail = {
@@ -49,6 +51,14 @@ export const aiService = {
   async analyzeEmail(emailId: string) {
     const { data } = await api.post(`/ai/analyze/${emailId}`);
     return data;
+  },
+  async summarizeEmail(emailId: string) {
+    const { data } = await api.post<Email>(`/ai/summarize/${emailId}`);
+    return normalizeEmail(data);
+  },
+  async translateEmail(emailId: string) {
+    const { data } = await api.post<Email>(`/ai/translate/${emailId}`);
+    return normalizeEmail(data);
   },
   async analyzeAll() {
     const { data } = await api.post("/ai/analyze-all");

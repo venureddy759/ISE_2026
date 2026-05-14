@@ -17,7 +17,7 @@ const validCategories: EmailCategory[] = [
 ];
 
 const validPriorities: EmailPriority[] = ["High", "Medium", "Low"];
-const validFolders: EmailFolder[] = ["inbox", "sent", "draft"];
+const validFolders: EmailFolder[] = ["inbox", "sent", "draft", "bin"];
 
 function textOrFallback(value: unknown, fallback: string) {
   return typeof value === "string" && value.trim() ? value : fallback;
@@ -60,7 +60,10 @@ export function normalizeEmail(email: Partial<Email>): Email {
     subject,
     preview: textOrFallback(email.preview, content.slice(0, 140)),
     content,
-    translatedContent: textOrFallback(email.translatedContent, content),
+    translatedContent:
+      typeof email.translatedContent === "string" && email.translatedContent.trim()
+        ? email.translatedContent
+        : null,
     category,
     priority,
     severity: email.severity ?? null,
@@ -75,7 +78,6 @@ export function normalizeEmail(email: Partial<Email>): Email {
     isRead: Boolean(email.isRead),
     isStarred: Boolean(email.isStarred),
     summary: normalizeSummary(email.summary),
-    replySuggestions: Array.isArray(email.replySuggestions) ? email.replySuggestions : [],
     tasks: Array.isArray(email.tasks) ? email.tasks : [],
     readReceipt: email.readReceipt ?? { status: "sent" },
   };

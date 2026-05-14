@@ -20,6 +20,7 @@ export function DraftsPage() {
     selectEmail,
     setCategory,
     toggleStarred,
+    removeEmail,
   } = useInboxStore();
 
   useEffect(() => {
@@ -66,6 +67,9 @@ export function DraftsPage() {
                   openCompose(email);
                 }}
                 onToggleStarred={toggleStarred}
+                onDelete={(email) => {
+                  void removeEmail(email.id);
+                }}
               />
             </div>
             <EmailPagination

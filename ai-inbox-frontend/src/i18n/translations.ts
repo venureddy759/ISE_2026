@@ -28,6 +28,7 @@ type TranslationKey =
   | "authentication"
   | "authenticationDescription"
   | "autoResolved"
+  | "bin"
   | "categories"
   | "closeSummary"
   | "college"
@@ -37,8 +38,8 @@ type TranslationKey =
   | "dashboard"
   | "deadline"
   | "deadlines"
+  | "delete"
   | "delivered"
-  | "draftReply"
   | "drafts"
   | "emailNotFound"
   | "email"
@@ -64,7 +65,6 @@ type TranslationKey =
   | "noEmailsAvailable"
   | "noExtractedTasks"
   | "noKeyPoints"
-  | "noSuggestedReplies"
   | "openEmail"
   | "openFullEmail"
   | "original"
@@ -88,9 +88,6 @@ type TranslationKey =
   | "setReminder"
   | "signInWorkspace"
   | "starred"
-  | "suggestedNextSteps"
-  | "suggestedReplies"
-  | "suggestionsPanel"
   | "summary"
   | "translated"
   | "urgent"
@@ -116,6 +113,7 @@ const en: TranslationMap = {
   authentication: "Authentication",
   authenticationDescription: "Your session and profile settings are managed securely.",
   autoResolved: "Auto Resolved",
+  bin: "Bin",
   categories: "Categories",
   closeSummary: "Close summary",
   college: "College",
@@ -125,8 +123,8 @@ const en: TranslationMap = {
   dashboard: "Dashboard",
   deadline: "Deadline",
   deadlines: "Deadlines",
+  delete: "Delete",
   delivered: "Delivered",
-  draftReply: "Draft Reply",
   drafts: "Drafts",
   email: "Email",
   emailNotFound: "Email not found.",
@@ -152,7 +150,6 @@ const en: TranslationMap = {
   noEmailsAvailable: "No emails available yet.",
   noExtractedTasks: "No extracted tasks.",
   noKeyPoints: "No key points available.",
-  noSuggestedReplies: "No suggested replies available.",
   openEmail: "Open Email",
   openFullEmail: "Open full email",
   original: "Original",
@@ -176,9 +173,6 @@ const en: TranslationMap = {
   setReminder: "Set Reminder",
   signInWorkspace: "Sign in to your workspace",
   starred: "Starred",
-  suggestedNextSteps: "Suggested next steps",
-  suggestedReplies: "Suggested Replies",
-  suggestionsPanel: "Suggestions Panel",
   summary: "Summary",
   translated: "Translated",
   urgent: "Urgent",
@@ -198,6 +192,7 @@ const te: TranslationMap = {
   all: "అన్నీ",
   allMessages: "అన్ని సందేశాలు, లేబుళ్లు, ఇమెయిల్ చర్యలు.",
   authentication: "ప్రామాణీకరణ",
+  bin: "Bin",
   categories: "వర్గాలు",
   closeSummary: "సారాంశాన్ని మూసివేయి",
   college: "కాలేజ్",
@@ -206,8 +201,8 @@ const te: TranslationMap = {
   dashboard: "డాష్‌బోర్డ్",
   deadline: "గడువు",
   deadlines: "గడువులు",
+  delete: "Delete",
   delivered: "చేరింది",
-  draftReply: "ప్రత్యుత్తర ముసాయిదా",
   drafts: "ముసాయిదాలు",
   emailNotFound: "ఇమెయిల్ దొరకలేదు.",
   finance: "ఆర్థికం",
@@ -230,7 +225,6 @@ const te: TranslationMap = {
   noEmailsAvailable: "ఇంకా ఇమెయిళ్లు లేవు.",
   noExtractedTasks: "సేకరించిన పనులు లేవు.",
   noKeyPoints: "ముఖ్యాంశాలు లేవు.",
-  noSuggestedReplies: "సూచించిన ప్రత్యుత్తరాలు లేవు.",
   openEmail: "ఇమెయిల్ తెరవండి",
   openFullEmail: "పూర్తి ఇమెయిల్ తెరవండి",
   original: "మూలం",
@@ -251,8 +245,6 @@ const te: TranslationMap = {
   settings: "సెట్టింగులు",
   setReminder: "రిమైండర్ పెట్టండి",
   starred: "స్టార్ చేసినవి",
-  suggestedReplies: "సూచించిన ప్రత్యుత్తరాలు",
-  suggestionsPanel: "సూచనల ప్యానెల్",
   summary: "సారాంశం",
   translated: "అనువాదం",
   urgent: "అత్యవసరం",

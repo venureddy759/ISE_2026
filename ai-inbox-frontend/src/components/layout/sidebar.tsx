@@ -1,4 +1,5 @@
-import { Bot, Inbox, Pencil, Search, Send, Star, Tag, FileText, X, ChevronDown } from "lucide-react";
+import { Bot, Inbox, Pencil, Send, Star, Tag, FileText, X, ChevronDown, Trash2 } from "lucide-react";
+import { useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "@/i18n/use-translation";
@@ -11,7 +12,7 @@ const links = [
   { to: "/sent", labelKey: "sent" as const, icon: Send, countKey: "sent" as const },
   { to: "/drafts", labelKey: "drafts" as const, icon: FileText, countKey: "draft" as const },
   { to: "/starred", labelKey: "starred" as const, icon: Star, countKey: "starred" as const },
-  { to: "/search", labelKey: "search" as const, icon: Search },
+  { to: "/bin", labelKey: "bin" as const, icon: Trash2, countKey: "bin" as const },
 ];
 
 export function Sidebar({
@@ -26,6 +27,7 @@ export function Sidebar({
   const { t, tv } = useTranslation();
   const folderCounts = useInboxStore((state) => state.folderCounts);
   const setCategory = useInboxStore((state) => state.setCategory);
+  const [categoriesOpen, setCategoriesOpen] = useState(true);
   const navigate = useNavigate();
 
   return (
@@ -85,26 +87,34 @@ export function Sidebar({
           ))}
         </nav>
         <div className="mt-6">
-          <div className="flex items-center gap-3 rounded-r-full rounded-l-2xl px-4 py-3 text-sm text-muted-foreground">
+          <button
+            type="button"
+            className="flex w-full items-center gap-3 rounded-r-full rounded-l-2xl px-4 py-3 text-left text-sm text-muted-foreground transition hover:bg-secondary hover:text-foreground"
+            onClick={() => setCategoriesOpen((open) => !open)}
+            aria-expanded={categoriesOpen}
+          >
             <Tag className="h-4 w-4" />
             {t("categories")}
-            <ChevronDown className="ml-auto h-4 w-4" />
-          </div>
-          {(["Work", "Finance", "College"] as const).map((category) => (
-            <button
-              key={category}
-              type="button"
-              className="ml-6 mt-1 flex w-[calc(100%-1.5rem)] items-center gap-3 rounded-r-full rounded-l-2xl px-4 py-2 text-left text-sm text-muted-foreground hover:bg-secondary hover:text-foreground"
-              onClick={() => {
-                setCategory(category);
-                navigate("/inbox");
-                onClose();
-              }}
-            >
-              <span className="h-2 w-2 rounded-full bg-slate-400" />
-              {tv(category)}
-            </button>
-          ))}
+            <ChevronDown
+              className={cn("ml-auto h-4 w-4 transition-transform", !categoriesOpen && "-rotate-90")}
+            />
+          </button>
+          {categoriesOpen &&
+            (["Work", "Finance", "College"] as const).map((category) => (
+              <button
+                key={category}
+                type="button"
+                className="ml-6 mt-1 flex w-[calc(100%-1.5rem)] items-center gap-3 rounded-r-full rounded-l-2xl px-4 py-2 text-left text-sm text-muted-foreground hover:bg-secondary hover:text-foreground"
+                onClick={() => {
+                  setCategory(category);
+                  navigate("/inbox");
+                  onClose();
+                }}
+              >
+                <span className="h-2 w-2 rounded-full bg-slate-400" />
+                {tv(category)}
+              </button>
+            ))}
         </div>
       </aside>
     </>

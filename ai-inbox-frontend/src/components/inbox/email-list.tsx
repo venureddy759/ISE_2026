@@ -13,12 +13,14 @@ export function EmailList({
   onPreview,
   onOpen,
   onToggleStarred,
+  onDelete,
 }: {
   emails: Email[];
   selectedEmailId?: string;
   onPreview: (email: Email) => void;
   onOpen: (email: Email) => void;
   onToggleStarred?: (email: Email) => void;
+  onDelete?: (email: Email) => void;
 }) {
   const { t } = useTranslation();
   const clickTimeoutRef = useRef<number | null>(null);
@@ -99,7 +101,16 @@ export function EmailList({
               <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full" onClick={(event) => event.stopPropagation()}>
                 <Archive className="h-4 w-4" />
               </Button>
-              <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full" onClick={(event) => event.stopPropagation()}>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 rounded-full"
+                onClick={(event) => {
+                  event.stopPropagation();
+                  onDelete?.(email);
+                }}
+                aria-label="Move email to bin"
+              >
                 <Trash2 className="h-4 w-4" />
               </Button>
               <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full" onClick={(event) => event.stopPropagation()}>

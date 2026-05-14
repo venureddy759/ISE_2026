@@ -1,4 +1,5 @@
 import { ArrowRight, Sparkles, X } from "lucide-react";
+import { useEffect } from "react";
 import type { Email } from "@/types/email";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -16,12 +17,22 @@ export function EmailSummaryPanel({
   email,
   onClose,
   onOpen,
+  loading = false,
+  onSummarize,
 }: {
   email: Email | null;
   onClose: () => void;
   onOpen: (email: Email) => void;
+  loading?: boolean;
+  onSummarize?: (email: Email) => void;
 }) {
   const { t } = useTranslation();
+
+  useEffect(() => {
+    if (email) {
+      onSummarize?.(email);
+    }
+  }, [email, onSummarize]);
 
   if (!email) {
     return (
@@ -65,27 +76,38 @@ export function EmailSummaryPanel({
         </div>
       </div>
 
-      <p className="mt-5 text-sm leading-7 text-muted-foreground">{summary.shortSummary}</p>
+      {loading ? (
+        <div className="mt-5 space-y-3 rounded-lg border border-sky-100 bg-sky-50/70 p-4 dark:border-sky-900/40 dark:bg-sky-950/20">
+          <div className="h-3 w-3/4 animate-pulse rounded-full bg-sky-200 dark:bg-sky-900" />
+          <div className="h-3 w-full animate-pulse rounded-full bg-sky-200 dark:bg-sky-900" />
+          <div className="h-3 w-2/3 animate-pulse rounded-full bg-sky-200 dark:bg-sky-900" />
+          <p className="text-sm text-muted-foreground">Generating summary...</p>
+        </div>
+      ) : (
+        <>
+          <p className="mt-5 whitespace-pre-line text-sm leading-7 text-muted-foreground">{summary.shortSummary}</p>
 
-      <div className="mt-5">
-        <p className="text-sm font-semibold">{t("keyPoints")}</p>
-        <ul className="mt-2 space-y-2 text-sm text-muted-foreground">
-          {summary.keyPoints.length === 0 && <li>{t("noKeyPoints")}</li>}
-          {summary.keyPoints.map((point) => (
-            <li key={point}>- {point}</li>
-          ))}
-        </ul>
-      </div>
+          <div className="mt-5">
+            <p className="text-sm font-semibold">{t("keyPoints")}</p>
+            <ul className="mt-2 space-y-2 text-sm text-muted-foreground">
+              {summary.keyPoints.length === 0 && <li>{t("noKeyPoints")}</li>}
+              {summary.keyPoints.map((point) => (
+                <li key={point}>- {point}</li>
+              ))}
+            </ul>
+          </div>
 
-      <div className="mt-5">
-        <p className="text-sm font-semibold">{t("actionItems")}</p>
-        <ul className="mt-2 space-y-2 text-sm text-muted-foreground">
-          {summary.actionItems.length === 0 && <li>{t("noActionItems")}</li>}
-          {summary.actionItems.map((item) => (
-            <li key={item}>- {item}</li>
-          ))}
-        </ul>
-      </div>
+          <div className="mt-5">
+            <p className="text-sm font-semibold">{t("actionItems")}</p>
+            <ul className="mt-2 space-y-2 text-sm text-muted-foreground">
+              {summary.actionItems.length === 0 && <li>{t("noActionItems")}</li>}
+              {summary.actionItems.map((item) => (
+                <li key={item}>- {item}</li>
+              ))}
+            </ul>
+          </div>
+        </>
+      )}
 
       <Button className="mt-6 w-full" onClick={() => onOpen(email)}>
         {t("openFullEmail")}

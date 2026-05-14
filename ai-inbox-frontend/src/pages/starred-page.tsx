@@ -18,6 +18,7 @@ export function StarredPage() {
     fetchStarredEmails,
     selectEmail,
     toggleStarred,
+    removeEmail,
   } = useInboxStore();
 
   useEffect(() => {
@@ -56,6 +57,9 @@ export function StarredPage() {
                   navigate(`/email/${email.id}`, { state: { from: "/starred" } });
                 }}
                 onToggleStarred={toggleStarred}
+                onDelete={(email) => {
+                  void removeEmail(email.id);
+                }}
               />
             </div>
             <EmailPagination

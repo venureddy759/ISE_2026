@@ -27,24 +27,6 @@ export const mockEmails: Email[] = [
       ],
       actionItems: ["Revise slide three", "Reply with presenter confirmation"],
     },
-    replySuggestions: [
-      {
-        id: "reply-1",
-        type: "professional",
-        content:
-          "Absolutely, I'll review the deck this afternoon and send back notes on the metrics and risk sections.",
-      },
-      {
-        id: "reply-2",
-        type: "friendly",
-        content: "On it. I'll take a look and ping you once I've cleaned up the deck.",
-      },
-      {
-        id: "reply-3",
-        type: "short",
-        content: "Reviewing now. Will confirm the presenter shortly.",
-      },
-    ],
     tasks: [
       { id: "task-1", text: "Update the metrics slide", completed: false },
       { id: "task-2", text: "Confirm roadmap presenter", completed: false },
@@ -76,23 +58,6 @@ export const mockEmails: Email[] = [
       keyPoints: ["April statement available", "Verify transactions"],
       actionItems: ["Download statement", "Check for discrepancies"],
     },
-    replySuggestions: [
-      {
-        id: "reply-4",
-        type: "professional",
-        content: "Thank you. I will review the statement and reach out if anything needs clarification.",
-      },
-      {
-        id: "reply-5",
-        type: "friendly",
-        content: "Thanks for the update. I'll go through it today.",
-      },
-      {
-        id: "reply-6",
-        type: "short",
-        content: "Received. Reviewing the statement today.",
-      },
-    ],
     tasks: [{ id: "task-3", text: "Verify April transactions", completed: false }],
     readReceipt: {
       status: "delivered",
@@ -120,23 +85,6 @@ export const mockEmails: Email[] = [
       keyPoints: ["Friday at 11:30 AM", "Bring updated resume"],
       actionItems: ["Prepare resume", "Arrive before the scheduled time"],
     },
-    replySuggestions: [
-      {
-        id: "reply-7",
-        type: "professional",
-        content: "Thank you for the confirmation. I will be available at the scheduled time with my updated resume.",
-      },
-      {
-        id: "reply-8",
-        type: "friendly",
-        content: "Thanks for confirming. I'll be there on time with the resume.",
-      },
-      {
-        id: "reply-9",
-        type: "short",
-        content: "Confirmed. I'll attend with my resume.",
-      },
-    ],
     tasks: [{ id: "task-4", text: "Print updated resume", completed: false }],
     readReceipt: {
       status: "sent",

@@ -11,7 +11,7 @@ type InboxState = {
   search: string;
   fetchEmails: (folder?: EmailFolder) => Promise<void>;
   fetchFolderEmails: (folder: EmailFolder) => Promise<void>;
-  folderCounts: Record<"inbox" | "sent" | "draft" | "starred", number>;
+  folderCounts: Record<"inbox" | "sent" | "draft" | "bin" | "starred", number>;
   refreshFolderCounts: () => Promise<void>;
   fetchStarredEmails: () => Promise<void>;
   createEmail: (email: Parameters<typeof emailService.create>[0]) => Promise<Email>;
@@ -36,6 +36,7 @@ export const useInboxStore = create<InboxState>((set, get) => ({
     inbox: 0,
     sent: 0,
     draft: 0,
+    bin: 0,
     starred: 0,
   },
   async fetchEmails(folder = "inbox") {
@@ -114,10 +115,11 @@ export const useInboxStore = create<InboxState>((set, get) => ({
   },
   async refreshFolderCounts() {
     try {
-      const [inbox, sent, draft, allEmails] = await Promise.all([
+      const [inbox, sent, draft, bin, allEmails] = await Promise.all([
         emailService.list({ folder: "inbox" }),
         emailService.list({ folder: "sent" }),
         emailService.list({ folder: "draft" }),
+        emailService.list({ folder: "bin" }),
         emailService.list(),
       ]);
 
@@ -126,7 +128,8 @@ export const useInboxStore = create<InboxState>((set, get) => ({
           inbox: inbox.length,
           sent: sent.length,
           draft: draft.length,
-          starred: allEmails.filter((email) => email.isStarred).length,
+          bin: bin.length,
+          starred: allEmails.filter((email) => email.isStarred && email.folder !== "bin").length,
         },
       });
     } catch (error) {
@@ -278,6 +281,7 @@ export const useInboxStore = create<InboxState>((set, get) => ({
         inbox: 0,
         sent: 0,
         draft: 0,
+        bin: 0,
         starred: 0,
       },
     });

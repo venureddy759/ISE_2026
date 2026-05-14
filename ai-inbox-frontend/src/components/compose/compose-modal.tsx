@@ -15,8 +15,9 @@ export function ComposeModal({ onSent }: ComposeModalProps) {
   const user = useAuthStore((state) => state.user);
   const open = useComposeStore((state) => state.open);
   const draftEmail = useComposeStore((state) => state.draftEmail);
+  const seed = useComposeStore((state) => state.seed);
   const closeCompose = useComposeStore((state) => state.closeCompose);
-  const { createEmail, updateEmail, removeEmail } = useInboxStore();
+  const { createEmail, updateEmail } = useInboxStore();
   const [recipient, setRecipient] = useState("");
   const [subject, setSubject] = useState("");
   const [content, setContent] = useState("");
@@ -27,10 +28,10 @@ export function ComposeModal({ onSent }: ComposeModalProps) {
       return;
     }
 
-    setRecipient(draftEmail?.recipient ?? "");
-    setSubject(draftEmail?.subject === "(No subject)" ? "" : (draftEmail?.subject ?? ""));
-    setContent(draftEmail?.content === "No message content." ? "" : (draftEmail?.content ?? ""));
-  }, [draftEmail, open]);
+    setRecipient(seed?.recipient ?? draftEmail?.recipient ?? "");
+    setSubject(seed?.subject ?? (draftEmail?.subject === "(No subject)" ? "" : (draftEmail?.subject ?? "")));
+    setContent(seed?.content ?? (draftEmail?.content === "No message content." ? "" : (draftEmail?.content ?? "")));
+  }, [draftEmail, open, seed]);
 
   if (!open) {
     return null;
@@ -75,13 +76,11 @@ export function ComposeModal({ onSent }: ComposeModalProps) {
       return null;
     }
 
-    const sentEmail = await createEmail(payload);
-
     if (draftEmail) {
-      await removeEmail(draftEmail.id);
+      return updateEmail(draftEmail.id, payload);
     }
 
-    return sentEmail;
+    return createEmail(payload);
   }
 
   function resetForm() {

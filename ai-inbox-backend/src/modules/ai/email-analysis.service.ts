@@ -57,11 +57,26 @@ export class EmailAnalysisService {
     for (let index = 0; index < emails.length; index += this.batchSize) {
       const batch = emails.slice(index, index + this.batchSize);
 
-      for (const email of batch) {
-        if (this.hasAnalysis(email)) {
+      for (const [batchOffset, email] of batch.entries()) {
+        const current = index + batchOffset + 1;
+        const total = emails.length;
+
+        if (this.hasAnalysis(email) && this.hasClassification(email)) {
+          this.logger.log(
+            `[${current}/${total}] Skipping email ${email.id}; AI analysis and classification already exist.`,
+          );
           skipped += 1;
           continue;
         }
+
+        this.logger.log(
+          `[${current}/${total}] Analyzing email ${email.id}; missing ${[
+            !this.hasAnalysis(email) ? "analysis" : null,
+            !this.hasClassification(email) ? "classification" : null,
+          ]
+            .filter(Boolean)
+            .join(" and ")}.`,
+        );
 
         try {
           await this.analyzeAndClassifyEmail(email);
@@ -139,11 +154,26 @@ export class EmailAnalysisService {
     for (let index = 0; index < emails.length; index += this.batchSize) {
       const batch = emails.slice(index, index + this.batchSize);
 
-      for (const email of batch) {
-        if (this.hasAnalysis(email)) {
+      for (const [batchOffset, email] of batch.entries()) {
+        const current = index + batchOffset + 1;
+        const total = emails.length;
+
+        if (this.hasAnalysis(email) && this.hasClassification(email)) {
+          this.logger.log(
+            `[${current}/${total}] Skipping email ${email.id}; AI analysis and classification already exist.`,
+          );
           analyzedEmails.push(email);
           continue;
         }
+
+        this.logger.log(
+          `[${current}/${total}] Analyzing email ${email.id}; missing ${[
+            !this.hasAnalysis(email) ? "analysis" : null,
+            !this.hasClassification(email) ? "classification" : null,
+          ]
+            .filter(Boolean)
+            .join(" and ")}.`,
+        );
 
         try {
           analyzedEmails.push(await this.analyzeAndClassifyEmail(email));
@@ -184,6 +214,11 @@ export class EmailAnalysisService {
       }
 
       const analysis = (await response.json()) as AnalysisResponse;
+      console.log("[AI OUTPUT]", {
+        emailId: email.id,
+        source: "analysis",
+        output: analysis,
+      });
       this.logger.log(`AI model response for email ${email.id}: ${JSON.stringify(analysis)}`);
 
       if (!this.hasUsefulAnalysis(analysis)) {
@@ -223,6 +258,8 @@ Use this exact JSON schema:
   "urgency": "high"
 }`;
 
+    this.logger.log(`Sending email ${email.id} to classification model.`);
+
     const response = await fetch(this.classificationEndpoint, {
       method: "POST",
       headers: {
@@ -251,6 +288,12 @@ Use this exact JSON schema:
       return null;
     }
 
+    console.log("[AI OUTPUT]", {
+      emailId: email.id,
+      source: "classification",
+      rawOutput: text,
+      output: classification,
+    });
     this.logger.log(`Classification model response for email ${email.id}: ${JSON.stringify(classification)}`);
     return classification;
   }
