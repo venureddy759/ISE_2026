@@ -1,5 +1,6 @@
 import type { EmailCategory } from "@/types/email";
 import { Button } from "@/components/ui/button";
+import { useTranslation } from "@/i18n/use-translation";
 import { cn } from "@/lib/utils";
 
 const categories: Array<EmailCategory | "All"> = [
@@ -19,6 +20,8 @@ export function CategoryFilter({
   value: EmailCategory | "All";
   onChange: (next: EmailCategory | "All") => void;
 }) {
+  const { tv } = useTranslation();
+
   return (
     <div className="flex flex-wrap gap-2">
       {categories.map((category) => (
@@ -32,7 +35,7 @@ export function CategoryFilter({
           )}
           onClick={() => onChange(category)}
         >
-          {category}
+          {tv(category)}
         </Button>
       ))}
     </div>

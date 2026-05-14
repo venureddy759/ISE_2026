@@ -1,6 +1,6 @@
 import { Module } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
-import { AiModule } from "src/modules/ai/ai.module";
+import { AiModule } from "../ai/ai.module";
 import { Email } from "./entities/email.entity";
 import { EmailReply } from "./entities/email-reply.entity";
 import { EmailsController } from "./emails.controller";

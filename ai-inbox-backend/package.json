@@ -8,6 +8,11 @@
     "start": "nest start",
     "start:dev": "nest start --watch",
     "start:prod": "node dist/main",
+    "import:emails": "ts-node -r tsconfig-paths/register scripts/import-emails.ts",
+    "move:inbox-to-sent": "ts-node -r tsconfig-paths/register scripts/move-inbox-to-sent.ts",
+    "import:realtime-emails": "ts-node -r tsconfig-paths/register scripts/import-realtime-emails.ts",
+    "reset:realtime-emails": "powershell -NoProfile -Command \"$env:REALTIME_EMAILS_CLEAR='true'; $env:REALTIME_EMAILS_LIMIT='500'; ts-node -r tsconfig-paths/register scripts/import-realtime-emails.ts\"",
+    "reset:emails-100": "powershell -NoProfile -Command \"$ErrorActionPreference='Stop'; $env:REALTIME_EMAILS_CLEAR='true'; $env:REALTIME_EMAILS_LIMIT='100'; $env:REALTIME_EMAILS_USER_ID='7b636636-0b3b-461a-9add-fb5bdb522920'; ts-node -r tsconfig-paths/register scripts/import-realtime-emails.ts; if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }; $env:EMAIL_IMPORT_LIMIT='100'; $env:EMAIL_IMPORT_USER_ID='7b636636-0b3b-461a-9add-fb5bdb522920'; ts-node -r tsconfig-paths/register scripts/import-emails.ts\"",
     "lint": "eslint \"{src,test}/**/*.ts\""
   },
   "dependencies": {
@@ -21,6 +26,7 @@
     "bcrypt": "^6.0.0",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.2",
+    "csv-parser": "^3.2.1",
     "firebase-admin": "^13.7.0",
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",

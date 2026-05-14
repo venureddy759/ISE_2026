@@ -3,6 +3,7 @@ import type { Email } from "@/types/email";
 export const mockEmails: Email[] = [
   {
     id: "mail-1",
+    folder: "inbox",
     sender: "Aarav Mehta",
     senderEmail: "aarav@projectlab.dev",
     recipient: "you@semanticinbox.app",
@@ -54,6 +55,7 @@ export const mockEmails: Email[] = [
   },
   {
     id: "mail-2",
+    folder: "inbox",
     sender: "ICICI Bank Alerts",
     senderEmail: "alerts@icicibank.com",
     recipient: "you@semanticinbox.app",
@@ -96,6 +98,7 @@ export const mockEmails: Email[] = [
   },
   {
     id: "mail-3",
+    folder: "inbox",
     sender: "Placement Cell",
     senderEmail: "placements@college.edu",
     recipient: "you@semanticinbox.app",

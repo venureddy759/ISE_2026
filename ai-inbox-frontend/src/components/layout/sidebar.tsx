@@ -1,11 +1,14 @@
-import { Inbox, Pencil, Search, Send, Star, Tag, FileText, X, ChevronDown } from "lucide-react";
+import { Bot, Inbox, Pencil, Search, Send, Star, Tag, FileText, X, ChevronDown } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { useTranslation } from "@/i18n/use-translation";
 import { cn } from "@/lib/utils";
 
 const links = [
-  { to: "/inbox", label: "Inbox", icon: Inbox },
-  { to: "/search", label: "Search", icon: Search },
+  { to: "/inbox", labelKey: "inbox" as const, icon: Inbox },
+  { to: "/ai-inbox", labelKey: "aiInbox" as const, icon: Bot },
+  { to: "/sent", labelKey: "sent" as const, icon: Send },
+  { to: "/search", labelKey: "search" as const, icon: Search },
 ];
 
 export function Sidebar({
@@ -15,6 +18,8 @@ export function Sidebar({
   mobileOpen: boolean;
   onClose: () => void;
 }) {
+  const { t, tv } = useTranslation();
+
   return (
     <>
       <div
@@ -45,10 +50,10 @@ export function Sidebar({
         </div>
         <Button className="mb-5 justify-start rounded-xl bg-slate-200 px-5 text-slate-900 hover:bg-slate-300 dark:bg-slate-700 dark:text-white dark:hover:bg-slate-600">
           <Pencil className="mr-2 h-4 w-4" />
-          Compose
+          {t("compose")}
         </Button>
         <nav className="space-y-2">
-          {links.map(({ to, label, icon: Icon }) => (
+          {links.map(({ to, labelKey, icon: Icon }) => (
             <NavLink
               key={to}
               to={to}
@@ -63,16 +68,15 @@ export function Sidebar({
               }
             >
               <Icon className="h-4 w-4" />
-              {label}
-              {label === "Inbox" && <span className="ml-auto text-xs">12</span>}
+              {t(labelKey)}
+              {labelKey === "inbox" && <span className="ml-auto text-xs">12</span>}
             </NavLink>
           ))}
         </nav>
         <div className="mt-4 space-y-1 text-sm">
           {[
-            { label: "Sent", icon: Send },
-            { label: "Drafts", icon: FileText },
-            { label: "Starred", icon: Star },
+            { label: t("drafts"), icon: FileText },
+            { label: t("starred"), icon: Star },
           ].map(({ label, icon: Icon }) => (
             <div key={label} className="flex items-center gap-3 rounded-r-full rounded-l-2xl px-4 py-3 text-muted-foreground transition hover:bg-secondary hover:text-foreground">
               <Icon className="h-4 w-4" />
@@ -83,13 +87,13 @@ export function Sidebar({
         <div className="mt-6">
           <div className="flex items-center gap-3 rounded-r-full rounded-l-2xl px-4 py-3 text-sm text-muted-foreground">
             <Tag className="h-4 w-4" />
-            Categories
+            {t("categories")}
             <ChevronDown className="ml-auto h-4 w-4" />
           </div>
           {["Work", "Finance", "College"].map((category) => (
             <div key={category} className="ml-6 mt-1 flex items-center gap-3 rounded-r-full rounded-l-2xl px-4 py-2 text-sm text-muted-foreground hover:bg-secondary hover:text-foreground">
               <span className="h-2 w-2 rounded-full bg-slate-400" />
-              {category}
+              {tv(category)}
             </div>
           ))}
         </div>

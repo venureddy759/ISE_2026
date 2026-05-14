@@ -37,6 +37,12 @@ export class EmailsService {
       });
     }
 
+    if (filterEmailsDto.folder) {
+      queryBuilder.andWhere("email.folder = :folder", {
+        folder: filterEmailsDto.folder,
+      });
+    }
+
     return queryBuilder.getMany();
   }
 
@@ -58,6 +64,7 @@ export class EmailsService {
       ...createEmailDto,
       translatedContent: createEmailDto.translatedContent ?? null,
       summary: createEmailDto.summary ?? null,
+      folder: createEmailDto.folder,
       language: createEmailDto.language ?? "en",
       isRead: createEmailDto.isRead ?? false,
     });

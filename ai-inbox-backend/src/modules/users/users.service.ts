@@ -51,7 +51,7 @@ export class UsersService {
     const user = this.usersRepository.create({
       ...createUserDto,
       password: hashedPassword,
-      preferredLanguage: createUserDto.preferredLanguage ?? "en",
+      preferredLanguage: createUserDto.preferredLanguage ?? "en-IN",
     });
 
     return this.usersRepository.save(user);
@@ -95,7 +95,7 @@ export class UsersService {
       name: payload.name ?? payload.email.split("@")[0] ?? "Google User",
       email: payload.email,
       password: "",
-      preferredLanguage: payload.preferredLanguage ?? "en",
+      preferredLanguage: payload.preferredLanguage ?? "en-IN",
     });
 
     return this.usersRepository.save(user);

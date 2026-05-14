@@ -1,4 +1,5 @@
 import type { HTMLAttributes } from "react";
+import { useTranslation } from "@/i18n/use-translation";
 import { cn } from "@/lib/utils";
 
 const styles: Record<string, string> = {
@@ -19,6 +20,7 @@ export function Badge({
   ...props
 }: HTMLAttributes<HTMLDivElement>) {
   const key = String(children);
+  const { tv } = useTranslation();
   return (
     <div
       className={cn(
@@ -28,7 +30,7 @@ export function Badge({
       )}
       {...props}
     >
-      {children}
+      {typeof children === "string" ? tv(children) : children}
     </div>
   );
 }

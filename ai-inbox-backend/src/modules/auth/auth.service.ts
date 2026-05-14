@@ -2,9 +2,9 @@ import { Injectable, UnauthorizedException } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { JwtService } from "@nestjs/jwt";
 import * as bcrypt from "bcrypt";
-import { getFirebaseAdminApp } from "src/common/firebase/firebase";
-import { CreateUserDto } from "src/modules/users/dto/create-user.dto";
-import { UsersService } from "src/modules/users/users.service";
+import { getFirebaseAdminApp } from "../../common/firebase/firebase";
+import { CreateUserDto } from "../users/dto/create-user.dto";
+import { UsersService } from "../users/users.service";
 import { GoogleAuthDto } from "./dto/google-auth.dto";
 import { LoginDto } from "./dto/login.dto";
 
@@ -57,7 +57,7 @@ export class AuthService {
     const user = await this.usersService.findOrCreateGoogleUser({
       email: decoded.email,
       name: decoded.name,
-      preferredLanguage: "en",
+      preferredLanguage: "en-IN",
     });
 
     return this.buildAuthResponse(

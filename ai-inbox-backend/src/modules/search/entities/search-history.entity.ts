@@ -5,7 +5,7 @@ import {
   ManyToOne,
   PrimaryGeneratedColumn,
 } from "typeorm";
-import { User } from "src/modules/users/entities/user.entity";
+import { User } from "../../users/entities/user.entity";
 
 @Entity("search_history")
 export class SearchHistory {

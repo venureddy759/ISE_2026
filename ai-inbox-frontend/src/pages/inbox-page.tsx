@@ -1,14 +1,18 @@
-import { useEffect } from "react";
-import { Sparkles, X } from "lucide-react";
+import { Search } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { CategoryFilter } from "@/components/inbox/category-filter";
 import { EmailList } from "@/components/inbox/email-list";
-import { Badge } from "@/components/ui/badge";
-import { Card } from "@/components/ui/card";
+import { EmailPagination, getPaginatedEmails } from "@/components/inbox/email-pagination";
+import { EmailSummaryPanel } from "@/components/inbox/email-summary-panel";
+import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useTranslation } from "@/i18n/use-translation";
 import { useInboxStore } from "@/store/inbox-store";
 
 export function InboxPage() {
+  const { t } = useTranslation();
+  const [page, setPage] = useState(1);
   const navigate = useNavigate();
   const {
     emails,
@@ -25,93 +29,90 @@ export function InboxPage() {
   } = useInboxStore();
 
   useEffect(() => {
-    void fetchEmails();
+    setPage(1);
+    void fetchEmails("inbox");
   }, [category, search, fetchEmails]);
 
-  return (
-    <div className="space-y-4">
-      <CategoryFilter value={category} onChange={setCategory} />
+  const pagination = useMemo(() => getPaginatedEmails(emails, page), [emails, page]);
 
-      <div className={selectedEmail ? "grid gap-4 xl:grid-cols-[1.45fr_0.9fr]" : "block"}>
-        <Card className="overflow-hidden rounded-2xl border-border/70 p-0 shadow-none">
-          <div className="grid grid-cols-[minmax(0,1.1fr)_minmax(0,1.8fr)_auto] gap-3 border-b border-border/60 bg-muted/30 px-4 py-3 text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-            <p>Sender</p>
-            <p>Message</p>
-            <p>Actions</p>
+  return (
+    <div className="flex h-[calc(100vh-7rem)] min-h-[620px] flex-col overflow-hidden rounded-lg border border-border/70 bg-card shadow-sm">
+      <div className="border-b border-border/70 px-4 py-3">
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+          <div>
+            <h1 className="text-xl font-semibold">{t("inbox")}</h1>
+            <p className="text-sm text-muted-foreground">{t("allMessages")}</p>
           </div>
+          <div className="relative w-full lg:max-w-md">
+            <Search className="pointer-events-none absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+            <Input
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
+              placeholder={t("searchMail")}
+              className="rounded-full bg-background pl-9"
+            />
+          </div>
+        </div>
+        <div className="mt-3 overflow-x-auto">
+          <CategoryFilter value={category} onChange={setCategory} />
+        </div>
+      </div>
+
+      <div
+        className={
+          selectedEmail
+            ? "grid min-h-0 flex-1 lg:grid-cols-[minmax(420px,1fr)_380px]"
+            : "grid min-h-0 flex-1"
+        }
+      >
+        <section className="min-h-0 overflow-y-auto border-b border-border/70 lg:border-b-0 lg:border-r">
           {loading ? (
             <div className="space-y-3 p-4">
-              <Skeleton className="h-20 w-full" />
-              <Skeleton className="h-20 w-full" />
-              <Skeleton className="h-20 w-full" />
+              <Skeleton className="h-16 w-full" />
+              <Skeleton className="h-16 w-full" />
+              <Skeleton className="h-16 w-full" />
             </div>
           ) : (
-            <EmailList
-              emails={emails}
-              selectedEmailId={selectedEmail?.id}
-              onPreview={(email) => {
-                selectEmail(email);
-                markAsRead(email.id);
-              }}
+            <div className="flex min-h-full flex-col">
+              <div className="min-h-0 flex-1 overflow-y-auto">
+                <EmailList
+                  emails={pagination.items}
+                  selectedEmailId={selectedEmail?.id}
+                  onPreview={(email) => {
+                    selectEmail(email);
+                    markAsRead(email.id);
+                  }}
+                  onOpen={(email) => {
+                    selectEmail(email);
+                    markAsRead(email.id);
+                    navigate(`/email/${email.id}`);
+                  }}
+                />
+              </div>
+              <EmailPagination
+                page={pagination.page}
+                totalPages={pagination.totalPages}
+                totalItems={emails.length}
+                start={pagination.start}
+                end={pagination.end}
+                onPageChange={setPage}
+              />
+            </div>
+          )}
+        </section>
+
+        {selectedEmail && (
+          <section className="min-h-0 overflow-y-auto bg-background/60 p-4">
+            <EmailSummaryPanel
+              email={selectedEmail}
+              onClose={clearSelectedEmail}
               onOpen={(email) => {
                 selectEmail(email);
                 markAsRead(email.id);
-                navigate(`/emails/${email.id}`);
+                navigate(`/email/${email.id}`);
               }}
             />
-          )}
-        </Card>
-
-        {selectedEmail && (
-          <Card className="rounded-2xl border-border/70 p-5 shadow-none">
-            <div className="flex items-start justify-between gap-3">
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-sky-500">
-                  AI Summary
-                </p>
-                <h2 className="mt-2 text-lg font-semibold">{selectedEmail.subject}</h2>
-                <p className="mt-1 text-sm text-muted-foreground">{selectedEmail.sender}</p>
-              </div>
-              <div className="flex items-center gap-2">
-                <Sparkles className="h-5 w-5 text-sky-500" />
-                <button
-                  type="button"
-                  className="grid h-8 w-8 place-items-center rounded-full text-muted-foreground transition hover:bg-muted hover:text-foreground"
-                  onClick={clearSelectedEmail}
-                  aria-label="Close AI summary"
-                >
-                  <X className="h-4 w-4" />
-                </button>
-              </div>
-            </div>
-
-            <div className="mt-4 flex gap-2">
-              <Badge>{selectedEmail.priority}</Badge>
-              <Badge>{selectedEmail.category}</Badge>
-            </div>
-
-            <p className="mt-5 text-sm leading-7 text-muted-foreground">
-              {selectedEmail.summary.shortSummary}
-            </p>
-
-            <div className="mt-5">
-              <p className="text-sm font-semibold">Key points</p>
-              <ul className="mt-2 space-y-2 text-sm text-muted-foreground">
-                {selectedEmail.summary.keyPoints.map((point) => (
-                  <li key={point}>• {point}</li>
-                ))}
-              </ul>
-            </div>
-
-            <div className="mt-5">
-              <p className="text-sm font-semibold">Action items</p>
-              <ul className="mt-2 space-y-2 text-sm text-muted-foreground">
-                {selectedEmail.summary.actionItems.map((item) => (
-                  <li key={item}>• {item}</li>
-                ))}
-              </ul>
-            </div>
-          </Card>
+          </section>
         )}
       </div>
     </div>
