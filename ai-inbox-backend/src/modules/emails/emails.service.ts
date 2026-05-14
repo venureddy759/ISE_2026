@@ -67,6 +67,7 @@ export class EmailsService {
       folder: createEmailDto.folder,
       language: createEmailDto.language ?? "en",
       isRead: createEmailDto.isRead ?? false,
+      isStarred: createEmailDto.isStarred ?? false,
     });
 
     return this.emailsRepository.save(email);

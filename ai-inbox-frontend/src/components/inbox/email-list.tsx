@@ -1,6 +1,6 @@
 import { useRef } from "react";
-import { Archive, MailOpen, Trash2 } from "lucide-react";
-import { formatDistanceToNow } from "@/utils/date";
+import { Archive, MailOpen, Star, Trash2 } from "lucide-react";
+import { formatExactDate } from "@/utils/date";
 import type { Email } from "@/types/email";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -12,11 +12,13 @@ export function EmailList({
   selectedEmailId,
   onPreview,
   onOpen,
+  onToggleStarred,
 }: {
   emails: Email[];
   selectedEmailId?: string;
   onPreview: (email: Email) => void;
   onOpen: (email: Email) => void;
+  onToggleStarred?: (email: Email) => void;
 }) {
   const { t } = useTranslation();
   const clickTimeoutRef = useRef<number | null>(null);
@@ -74,9 +76,26 @@ export function EmailList({
           </div>
           <div className="flex shrink-0 items-center gap-1">
             <p className="mr-1 whitespace-nowrap text-xs text-muted-foreground">
-              {formatDistanceToNow(email.createdAt)}
+              {formatExactDate(email.createdAt)}
             </p>
             <div className="hidden items-center gap-1 lg:flex">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 rounded-full"
+                onClick={(event) => {
+                  event.stopPropagation();
+                  onToggleStarred?.(email);
+                }}
+                aria-label={email.isStarred ? "Remove star" : "Star email"}
+              >
+                <Star
+                  className={cn(
+                    "h-4 w-4",
+                    email.isStarred && "fill-amber-400 text-amber-500",
+                  )}
+                />
+              </Button>
               <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full" onClick={(event) => event.stopPropagation()}>
                 <Archive className="h-4 w-4" />
               </Button>

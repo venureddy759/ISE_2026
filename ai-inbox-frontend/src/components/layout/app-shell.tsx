@@ -1,11 +1,13 @@
 import { LogOut, Menu, MoonStar, PanelLeft, Search, Settings2, SunMedium, UserCircle2 } from "lucide-react";
 import { Outlet, useNavigate } from "react-router-dom";
 import { useTheme } from "next-themes";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
+import { ComposeModal } from "@/components/compose/compose-modal";
 import { Input } from "@/components/ui/input";
 import { useTranslation } from "@/i18n/use-translation";
 import { useAuthStore } from "@/store/auth-store";
+import { useComposeStore } from "@/store/compose-store";
 import { useInboxStore } from "@/store/inbox-store";
 import { Sidebar } from "./sidebar";
 
@@ -15,11 +17,23 @@ export function AppShell() {
   const { theme, setTheme } = useTheme();
   const navigate = useNavigate();
   const clearSession = useAuthStore((state) => state.clearSession);
-  const resetInbox = useInboxStore((state) => state.reset);
+  const openCompose = useComposeStore((state) => state.openCompose);
+  const { reset: resetInbox, refreshFolderCounts } = useInboxStore();
+
+  useEffect(() => {
+    void refreshFolderCounts();
+  }, [refreshFolderCounts]);
 
   return (
     <div className="flex min-h-screen bg-background">
-      <Sidebar mobileOpen={open} onClose={() => setOpen(false)} />
+      <Sidebar
+        mobileOpen={open}
+        onClose={() => setOpen(false)}
+        onCompose={() => {
+          openCompose();
+          setOpen(false);
+        }}
+      />
       <div className="flex min-h-screen flex-1 flex-col">
         <header className="sticky top-0 z-20 border-b border-border/60 bg-background/95">
           <div className="flex h-16 items-center gap-3 px-4 md:px-8">
@@ -71,6 +85,7 @@ export function AppShell() {
           <Outlet />
         </main>
       </div>
+      <ComposeModal onSent={() => navigate("/sent")} />
     </div>
   );
 }

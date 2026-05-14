@@ -5,10 +5,12 @@ import { PublicRoute } from "./routes/public-route";
 import { InboxPage } from "./pages/inbox-page";
 import { AiInboxPage } from "./pages/ai-inbox-page";
 import { EmailDetailsPage } from "./pages/email-details-page";
+import { DraftsPage } from "./pages/drafts-page";
 import { LoginPage } from "./pages/login-page";
 import { RegisterPage } from "./pages/register-page";
 import { SearchResultsPage } from "./pages/search-results-page";
 import { SentPage } from "./pages/sent-page";
+import { StarredPage } from "./pages/starred-page";
 import { SettingsPage } from "./pages/settings-page";
 
 export default function App() {
@@ -25,6 +27,8 @@ export default function App() {
           <Route path="/dashboard" element={<Navigate to="/inbox" replace />} />
           <Route path="/inbox" element={<InboxPage />} />
           <Route path="/sent" element={<SentPage />} />
+          <Route path="/drafts" element={<DraftsPage />} />
+          <Route path="/starred" element={<StarredPage />} />
           <Route path="/ai-inbox" element={<AiInboxPage />} />
           <Route path="/email/:emailId" element={<EmailDetailsPage />} />
           <Route path="/emails/:emailId" element={<EmailDetailsPage />} />

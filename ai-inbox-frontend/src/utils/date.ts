@@ -13,3 +13,17 @@ export function formatDistanceToNow(value: string) {
 
   return `${Math.round(diff / 24)}d ago`;
 }
+
+export function formatExactDate(value: string) {
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) {
+    return "Unknown date";
+  }
+
+  return date.toLocaleDateString(undefined, {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
+}

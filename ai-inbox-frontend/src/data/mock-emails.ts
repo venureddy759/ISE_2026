@@ -17,6 +17,7 @@ export const mockEmails: Email[] = [
     priority: "High",
     createdAt: "2026-05-13T08:30:00.000Z",
     isRead: false,
+    isStarred: false,
     summary: {
       shortSummary: "Review a sprint review deck and confirm the demo presenter.",
       keyPoints: [
@@ -69,6 +70,7 @@ export const mockEmails: Email[] = [
     priority: "Medium",
     createdAt: "2026-05-12T10:00:00.000Z",
     isRead: true,
+    isStarred: false,
     summary: {
       shortSummary: "Monthly bank statement is ready to review.",
       keyPoints: ["April statement available", "Verify transactions"],
@@ -112,6 +114,7 @@ export const mockEmails: Email[] = [
     priority: "High",
     createdAt: "2026-05-11T14:15:00.000Z",
     isRead: false,
+    isStarred: false,
     summary: {
       shortSummary: "Interview has been scheduled for Friday morning.",
       keyPoints: ["Friday at 11:30 AM", "Bring updated resume"],

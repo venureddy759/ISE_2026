@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { useTranslation } from "@/i18n/use-translation";
-import { formatDistanceToNow } from "@/utils/date";
+import { formatExactDate } from "@/utils/date";
 
 const fallbackSummary = {
   shortSummary: "No AI summary is available for this email yet.",
@@ -46,7 +46,7 @@ export function EmailSummaryPanel({
           </div>
           <h2 className="mt-3 line-clamp-2 text-xl font-semibold">{email.subject}</h2>
           <p className="mt-1 text-sm text-muted-foreground">
-            {email.sender} - {formatDistanceToNow(email.createdAt)}
+            {email.sender} - {formatExactDate(email.createdAt)}
           </p>
         </div>
         <div className="flex shrink-0 items-start gap-2">

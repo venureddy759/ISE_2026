@@ -1,5 +1,6 @@
 import { IsBoolean, IsEnum, IsOptional, IsString, IsUUID } from "class-validator";
 import { EmailCategory } from "../../../common/enums/email-category.enum";
+import { EmailFolder } from "../../../common/enums/email-folder.enum";
 import { EmailPriority } from "../../../common/enums/email-priority.enum";
 
 export class UpdateEmailDto {
@@ -10,6 +11,10 @@ export class UpdateEmailDto {
   @IsOptional()
   @IsString()
   sender?: string;
+
+  @IsOptional()
+  @IsEnum(EmailFolder)
+  folder?: EmailFolder;
 
   @IsOptional()
   @IsString()
@@ -46,4 +51,8 @@ export class UpdateEmailDto {
   @IsOptional()
   @IsBoolean()
   isRead?: boolean;
+
+  @IsOptional()
+  @IsBoolean()
+  isStarred?: boolean;
 }
