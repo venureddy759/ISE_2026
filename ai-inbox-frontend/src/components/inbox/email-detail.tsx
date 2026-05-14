@@ -6,13 +6,45 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { useTranslation } from "@/i18n/use-translation";
-import { formatDistanceToNow } from "@/utils/date";
+import { formatExactDate } from "@/utils/date";
 
 const fallbackSummary = {
   shortSummary: "No AI summary is available for this email yet.",
   keyPoints: [],
   actionItems: [],
 };
+
+function formatDeadlineLabel(value: string) {
+  const deadline = new Date(value);
+  if (Number.isNaN(deadline.getTime())) {
+    return "No deadline";
+  }
+
+  const today = new Date();
+  const startOfToday = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+  const startOfDeadline = new Date(deadline.getFullYear(), deadline.getMonth(), deadline.getDate());
+  const dayDiff = Math.round(
+    (startOfDeadline.getTime() - startOfToday.getTime()) / (1000 * 60 * 60 * 24),
+  );
+
+  if (dayDiff < 0) {
+    return "Expired";
+  }
+
+  if (dayDiff === 0) {
+    return "Today";
+  }
+
+  if (dayDiff === 1) {
+    return "Tomorrow";
+  }
+
+  return deadline.toLocaleDateString(undefined, {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
+}
 
 function ReadReceipt({ email }: { email: Email }) {
   const { t } = useTranslation();
@@ -27,13 +59,21 @@ function ReadReceipt({ email }: { email: Email }) {
       <span>
         {status === "sent" && t("sent")}
         {status === "delivered" && t("delivered")}
-        {status === "read" && `${t("seen")} ${seenAt ? formatDistanceToNow(seenAt) : ""}`}
+        {status === "read" && `${t("seen")} ${seenAt ? formatExactDate(seenAt) : ""}`}
       </span>
     </div>
   );
 }
 
-export function EmailDetail({ email }: { email: Email }) {
+export function EmailDetail({
+  email,
+  backPath = "/inbox",
+  showSuggestionsPanel = true,
+}: {
+  email: Email;
+  backPath?: string;
+  showSuggestionsPanel?: boolean;
+}) {
   const { t } = useTranslation();
   const [mode, setMode] = useState<"original" | "translated">("original");
   const [showSummary, setShowSummary] = useState(false);
@@ -45,15 +85,19 @@ export function EmailDetail({ email }: { email: Email }) {
       : (email.summary ?? fallbackSummary);
   const replySuggestions = email.replySuggestions ?? [];
   const tasks = email.tasks ?? [];
+  const extractedTasks = [
+    ...(email.extractedTask ? [{ id: `${email.id}-ai-task`, text: email.extractedTask, completed: false }] : []),
+    ...tasks,
+  ];
   const senderLine = [email.sender, email.senderEmail].filter(Boolean).join(" - ");
 
   return (
-    <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_300px]">
+    <div className={showSuggestionsPanel ? "grid gap-4 xl:grid-cols-[minmax(0,1fr)_300px]" : "grid gap-4"}>
       <Card className="rounded-lg border-border/70 p-0 shadow-none">
         <div className="border-b border-border/60 px-5 py-4">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="flex items-center gap-2">
-              <Button variant="ghost" size="icon" onClick={() => navigate("/inbox")}>
+              <Button variant="ghost" size="icon" onClick={() => navigate(backPath)}>
                 <ArrowLeft className="h-4 w-4" />
               </Button>
               <div>
@@ -63,6 +107,7 @@ export function EmailDetail({ email }: { email: Email }) {
             </div>
             <div className="flex gap-2">
               <Badge>{email.priority}</Badge>
+              {email.severity && <Badge>{email.severity}</Badge>}
               <Badge>{email.category}</Badge>
             </div>
           </div>
@@ -75,9 +120,11 @@ export function EmailDetail({ email }: { email: Email }) {
               <Sparkles className="mr-2 h-4 w-4" />
               {t("aiSummary")}
             </Button>
-            <Button size="sm" variant="outline" onClick={() => setShowReplies((value) => !value)}>
-              {t("suggestedReplies")}
-            </Button>
+            {showSuggestionsPanel && (
+              <Button size="sm" variant="outline" onClick={() => setShowReplies((value) => !value)}>
+                {t("suggestedReplies")}
+              </Button>
+            )}
             <Button
               size="sm"
               variant={mode === "original" ? "default" : "outline"}
@@ -107,6 +154,16 @@ export function EmailDetail({ email }: { email: Email }) {
                 {t("aiSummary")}
               </h3>
               <p className="mt-3 text-sm text-muted-foreground">{summary.shortSummary}</p>
+              {email.severity && (
+                <p className="mt-3 text-sm font-semibold text-sky-700 dark:text-sky-300">
+                  Severity: {email.severity}
+                </p>
+              )}
+              {email.deadline && (
+                <p className="mt-3 text-sm font-semibold text-rose-600">
+                  Deadline: {formatDeadlineLabel(email.deadline)}
+                </p>
+              )}
               <div className="mt-4">
                 <p className="text-sm font-semibold">{t("keyPoints")}</p>
                 <ul className="mt-2 space-y-2 text-sm text-muted-foreground">
@@ -118,6 +175,7 @@ export function EmailDetail({ email }: { email: Email }) {
               <div className="mt-4">
                 <p className="text-sm font-semibold">{t("actionItems")}</p>
                 <ul className="mt-2 space-y-2 text-sm text-muted-foreground">
+                  {email.extractedTask && <li>- {email.extractedTask}</li>}
                   {summary.actionItems.map((item) => (
                     <li key={item}>- {item}</li>
                   ))}
@@ -132,48 +190,50 @@ export function EmailDetail({ email }: { email: Email }) {
         </div>
       </Card>
 
-      <Card className="rounded-lg border-border/70 p-5 shadow-none">
-        <h3 className="text-sm font-semibold uppercase tracking-[0.16em] text-muted-foreground">
-          {t("suggestionsPanel")}
-        </h3>
-        {showReplies ? (
-          <div className="mt-4 space-y-3">
-            {replySuggestions.length === 0 && (
-              <div className="rounded-lg border border-dashed border-border/70 p-4 text-sm text-muted-foreground">
-                {t("noSuggestedReplies")}
-              </div>
-            )}
-            {replySuggestions.map((reply) => (
-              <div key={reply.id} className="rounded-xl border border-border/60 bg-background p-4">
-                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-sky-500">
-                  {reply.type}
-                </p>
-                <p className="mt-2 text-sm text-muted-foreground">{reply.content}</p>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div className="mt-4 rounded-xl border border-dashed border-border/70 p-6 text-sm text-muted-foreground">
-            {t("suggestedReplies")}
-          </div>
-        )}
+      {showSuggestionsPanel && (
+        <Card className="rounded-lg border-border/70 p-5 shadow-none">
+          <h3 className="text-sm font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+            {t("suggestionsPanel")}
+          </h3>
+          {showReplies ? (
+            <div className="mt-4 space-y-3">
+              {replySuggestions.length === 0 && (
+                <div className="rounded-lg border border-dashed border-border/70 p-4 text-sm text-muted-foreground">
+                  {t("noSuggestedReplies")}
+                </div>
+              )}
+              {replySuggestions.map((reply) => (
+                <div key={reply.id} className="rounded-xl border border-border/60 bg-background p-4">
+                  <p className="text-xs font-semibold uppercase tracking-[0.16em] text-sky-500">
+                    {reply.type}
+                  </p>
+                  <p className="mt-2 text-sm text-muted-foreground">{reply.content}</p>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="mt-4 rounded-xl border border-dashed border-border/70 p-6 text-sm text-muted-foreground">
+              {t("suggestedReplies")}
+            </div>
+          )}
 
-        <div className="mt-6">
-          <h4 className="text-sm font-semibold">{t("actionItems")}</h4>
-          <div className="mt-3 space-y-2">
-            {tasks.length === 0 && (
-              <div className="rounded-lg border border-dashed border-border/70 p-4 text-sm text-muted-foreground">
-                {t("noExtractedTasks")}
-              </div>
-            )}
-            {tasks.map((task) => (
-              <div key={task.id} className="rounded-xl border border-border/60 px-4 py-3 text-sm">
-                {task.text}
-              </div>
-            ))}
+          <div className="mt-6">
+            <h4 className="text-sm font-semibold">{t("actionItems")}</h4>
+            <div className="mt-3 space-y-2">
+              {extractedTasks.length === 0 && (
+                <div className="rounded-lg border border-dashed border-border/70 p-4 text-sm text-muted-foreground">
+                  {t("noExtractedTasks")}
+                </div>
+              )}
+              {extractedTasks.map((task) => (
+                <div key={task.id} className="rounded-xl border border-border/60 px-4 py-3 text-sm">
+                  {task.text}
+                </div>
+              ))}
+            </div>
           </div>
-        </div>
-      </Card>
+        </Card>
+      )}
     </div>
   );
 }

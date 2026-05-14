@@ -1,24 +1,32 @@
 import { Bot, Inbox, Pencil, Search, Send, Star, Tag, FileText, X, ChevronDown } from "lucide-react";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "@/i18n/use-translation";
 import { cn } from "@/lib/utils";
+import { useInboxStore } from "@/store/inbox-store";
 
 const links = [
-  { to: "/inbox", labelKey: "inbox" as const, icon: Inbox },
+  { to: "/inbox", labelKey: "inbox" as const, icon: Inbox, countKey: "inbox" as const },
   { to: "/ai-inbox", labelKey: "aiInbox" as const, icon: Bot },
-  { to: "/sent", labelKey: "sent" as const, icon: Send },
+  { to: "/sent", labelKey: "sent" as const, icon: Send, countKey: "sent" as const },
+  { to: "/drafts", labelKey: "drafts" as const, icon: FileText, countKey: "draft" as const },
+  { to: "/starred", labelKey: "starred" as const, icon: Star, countKey: "starred" as const },
   { to: "/search", labelKey: "search" as const, icon: Search },
 ];
 
 export function Sidebar({
   mobileOpen,
   onClose,
+  onCompose,
 }: {
   mobileOpen: boolean;
   onClose: () => void;
+  onCompose: () => void;
 }) {
   const { t, tv } = useTranslation();
+  const folderCounts = useInboxStore((state) => state.folderCounts);
+  const setCategory = useInboxStore((state) => state.setCategory);
+  const navigate = useNavigate();
 
   return (
     <>
@@ -41,19 +49,22 @@ export function Sidebar({
               <Inbox className="h-5 w-5" />
             </div>
             <div>
-              <p className="text-xl font-semibold">Gmail</p>
+              <p className="text-xl font-semibold">PriorityPilot</p>
             </div>
           </div>
           <Button variant="ghost" size="icon" className="md:hidden" onClick={onClose}>
             <X className="h-4 w-4" />
           </Button>
         </div>
-        <Button className="mb-5 justify-start rounded-xl bg-slate-200 px-5 text-slate-900 hover:bg-slate-300 dark:bg-slate-700 dark:text-white dark:hover:bg-slate-600">
+        <Button
+          className="mb-5 justify-start rounded-xl bg-slate-200 px-5 text-slate-900 hover:bg-slate-300 dark:bg-slate-700 dark:text-white dark:hover:bg-slate-600"
+          onClick={onCompose}
+        >
           <Pencil className="mr-2 h-4 w-4" />
           {t("compose")}
         </Button>
         <nav className="space-y-2">
-          {links.map(({ to, labelKey, icon: Icon }) => (
+          {links.map(({ to, labelKey, icon: Icon, countKey }) => (
             <NavLink
               key={to}
               to={to}
@@ -69,32 +80,30 @@ export function Sidebar({
             >
               <Icon className="h-4 w-4" />
               {t(labelKey)}
-              {labelKey === "inbox" && <span className="ml-auto text-xs">12</span>}
+              {countKey && <span className="ml-auto text-xs">{folderCounts[countKey]}</span>}
             </NavLink>
           ))}
         </nav>
-        <div className="mt-4 space-y-1 text-sm">
-          {[
-            { label: t("drafts"), icon: FileText },
-            { label: t("starred"), icon: Star },
-          ].map(({ label, icon: Icon }) => (
-            <div key={label} className="flex items-center gap-3 rounded-r-full rounded-l-2xl px-4 py-3 text-muted-foreground transition hover:bg-secondary hover:text-foreground">
-              <Icon className="h-4 w-4" />
-              {label}
-            </div>
-          ))}
-        </div>
         <div className="mt-6">
           <div className="flex items-center gap-3 rounded-r-full rounded-l-2xl px-4 py-3 text-sm text-muted-foreground">
             <Tag className="h-4 w-4" />
             {t("categories")}
             <ChevronDown className="ml-auto h-4 w-4" />
           </div>
-          {["Work", "Finance", "College"].map((category) => (
-            <div key={category} className="ml-6 mt-1 flex items-center gap-3 rounded-r-full rounded-l-2xl px-4 py-2 text-sm text-muted-foreground hover:bg-secondary hover:text-foreground">
+          {(["Work", "Finance", "College"] as const).map((category) => (
+            <button
+              key={category}
+              type="button"
+              className="ml-6 mt-1 flex w-[calc(100%-1.5rem)] items-center gap-3 rounded-r-full rounded-l-2xl px-4 py-2 text-left text-sm text-muted-foreground hover:bg-secondary hover:text-foreground"
+              onClick={() => {
+                setCategory(category);
+                navigate("/inbox");
+                onClose();
+              }}
+            >
               <span className="h-2 w-2 rounded-full bg-slate-400" />
               {tv(category)}
-            </div>
+            </button>
           ))}
         </div>
       </aside>

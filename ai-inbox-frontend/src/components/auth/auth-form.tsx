@@ -60,7 +60,7 @@ export function AuthForm({ mode }: { mode: "login" | "register" }) {
     <Card className="w-full max-w-md p-8">
       <div className="mb-6">
         <p className="text-sm uppercase tracking-[0.3em] text-sky-400">
-          Semantic Inbox
+          PriorityPilot
         </p>
         <h1 className="mt-3 text-3xl font-extrabold">
           {mode === "login" ? t("signInWorkspace") : t("createWorkspace")}

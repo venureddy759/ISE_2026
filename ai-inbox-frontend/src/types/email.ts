@@ -8,7 +8,7 @@ export type EmailCategory =
 
 export type EmailPriority = "High" | "Medium" | "Low";
 
-export type EmailFolder = "inbox" | "sent";
+export type EmailFolder = "inbox" | "sent" | "draft";
 
 export type ReplySuggestionType = "professional" | "friendly" | "short";
 
@@ -47,8 +47,17 @@ export interface Email {
   translatedContent?: string | null;
   category: EmailCategory;
   priority: EmailPriority;
+  severity?: string | null;
+  deadline?: string | null;
+  extractedTask?: string | null;
+  shouldCreateTask?: boolean | null;
+  needsAttention?: boolean | null;
+  deadlineNext7Days?: boolean | null;
+  waitingForResponse?: boolean | null;
+  autoResponse?: boolean | null;
   createdAt: string;
   isRead: boolean;
+  isStarred: boolean;
   summary?: EmailSummary | string | null;
   replySuggestions?: ReplySuggestion[] | null;
   tasks?: EmailTask[] | null;

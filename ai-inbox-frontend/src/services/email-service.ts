@@ -17,7 +17,7 @@ const validCategories: EmailCategory[] = [
 ];
 
 const validPriorities: EmailPriority[] = ["High", "Medium", "Low"];
-const validFolders: EmailFolder[] = ["inbox", "sent"];
+const validFolders: EmailFolder[] = ["inbox", "sent", "draft"];
 
 function textOrFallback(value: unknown, fallback: string) {
   return typeof value === "string" && value.trim() ? value : fallback;
@@ -63,8 +63,17 @@ export function normalizeEmail(email: Partial<Email>): Email {
     translatedContent: textOrFallback(email.translatedContent, content),
     category,
     priority,
+    severity: email.severity ?? null,
+    deadline: email.deadline ?? null,
+    extractedTask: email.extractedTask ?? null,
+    shouldCreateTask: email.shouldCreateTask ?? null,
+    needsAttention: email.needsAttention ?? null,
+    deadlineNext7Days: email.deadlineNext7Days ?? null,
+    waitingForResponse: email.waitingForResponse ?? null,
+    autoResponse: email.autoResponse ?? null,
     createdAt: textOrFallback(email.createdAt, new Date().toISOString()),
     isRead: Boolean(email.isRead),
+    isStarred: Boolean(email.isStarred),
     summary: normalizeSummary(email.summary),
     replySuggestions: Array.isArray(email.replySuggestions) ? email.replySuggestions : [],
     tasks: Array.isArray(email.tasks) ? email.tasks : [],
@@ -80,6 +89,47 @@ export const emailService = {
   },
   async getById(emailId: string) {
     const { data } = await api.get<Email>(`/emails/${emailId}`);
+    return normalizeEmail(data);
+  },
+  async create(email: {
+    userId: string;
+    folder: EmailFolder;
+    sender: string;
+    recipient: string;
+    subject: string;
+    content: string;
+    category?: EmailCategory;
+    priority?: EmailPriority;
+    isRead?: boolean;
+    isStarred?: boolean;
+  }) {
+    const { data } = await api.post<Email>("/emails", {
+      category: "Personal",
+      priority: "Low",
+      ...email,
+    });
+    return normalizeEmail(data);
+  },
+  async update(emailId: string, email: Partial<{
+    userId: string;
+    folder: EmailFolder;
+    sender: string;
+    recipient: string;
+    subject: string;
+    content: string;
+    category: EmailCategory;
+    priority: EmailPriority;
+    isRead: boolean;
+    isStarred: boolean;
+  }>) {
+    const { data } = await api.patch<Email>(`/emails/${emailId}`, email);
+    return normalizeEmail(data);
+  },
+  async remove(emailId: string) {
+    await api.delete(`/emails/${emailId}`);
+  },
+  async markAsRead(emailId: string) {
+    const { data } = await api.patch<Email>(`/emails/${emailId}/read`);
     return normalizeEmail(data);
   },
 };

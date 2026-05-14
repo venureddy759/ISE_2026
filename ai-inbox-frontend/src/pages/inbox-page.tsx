@@ -1,11 +1,9 @@
-import { Search } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { CategoryFilter } from "@/components/inbox/category-filter";
 import { EmailList } from "@/components/inbox/email-list";
 import { EmailPagination, getPaginatedEmails } from "@/components/inbox/email-pagination";
 import { EmailSummaryPanel } from "@/components/inbox/email-summary-panel";
-import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useTranslation } from "@/i18n/use-translation";
 import { useInboxStore } from "@/store/inbox-store";
@@ -19,19 +17,18 @@ export function InboxPage() {
     selectedEmail,
     category,
     loading,
-    search,
     fetchEmails,
     clearSelectedEmail,
     markAsRead,
     selectEmail,
     setCategory,
-    setSearch,
+    toggleStarred,
   } = useInboxStore();
 
   useEffect(() => {
     setPage(1);
     void fetchEmails("inbox");
-  }, [category, search, fetchEmails]);
+  }, [category, fetchEmails]);
 
   const pagination = useMemo(() => getPaginatedEmails(emails, page), [emails, page]);
 
@@ -42,15 +39,6 @@ export function InboxPage() {
           <div>
             <h1 className="text-xl font-semibold">{t("inbox")}</h1>
             <p className="text-sm text-muted-foreground">{t("allMessages")}</p>
-          </div>
-          <div className="relative w-full lg:max-w-md">
-            <Search className="pointer-events-none absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-            <Input
-              value={search}
-              onChange={(event) => setSearch(event.target.value)}
-              placeholder={t("searchMail")}
-              className="rounded-full bg-background pl-9"
-            />
           </div>
         </div>
         <div className="mt-3 overflow-x-auto">
@@ -85,8 +73,9 @@ export function InboxPage() {
                   onOpen={(email) => {
                     selectEmail(email);
                     markAsRead(email.id);
-                    navigate(`/email/${email.id}`);
+                    navigate(`/email/${email.id}`, { state: { from: "/inbox" } });
                   }}
+                  onToggleStarred={toggleStarred}
                 />
               </div>
               <EmailPagination
@@ -109,7 +98,7 @@ export function InboxPage() {
               onOpen={(email) => {
                 selectEmail(email);
                 markAsRead(email.id);
-                navigate(`/email/${email.id}`);
+                navigate(`/email/${email.id}`, { state: { from: "/inbox" } });
               }}
             />
           </section>

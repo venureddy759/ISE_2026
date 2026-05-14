@@ -1,4 +1,4 @@
-import { Send } from "lucide-react";
+import { Star } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { EmailList } from "@/components/inbox/email-list";
@@ -7,45 +7,34 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useTranslation } from "@/i18n/use-translation";
 import { useInboxStore } from "@/store/inbox-store";
 
-export function SentPage() {
+export function StarredPage() {
   const { t } = useTranslation();
   const [page, setPage] = useState(1);
   const navigate = useNavigate();
   const {
     emails,
     selectedEmail,
-    category,
     loading,
-    fetchFolderEmails,
+    fetchStarredEmails,
     selectEmail,
-    setCategory,
     toggleStarred,
   } = useInboxStore();
 
   useEffect(() => {
-    if (category !== "All") {
-      setCategory("All");
-      return;
-    }
-
     setPage(1);
-    void fetchFolderEmails("sent");
-  }, [category, fetchFolderEmails, setCategory]);
+    void fetchStarredEmails();
+  }, [fetchStarredEmails]);
 
   const pagination = useMemo(() => getPaginatedEmails(emails, page), [emails, page]);
 
   return (
     <div className="flex h-[calc(100vh-7rem)] min-h-[620px] flex-col overflow-hidden rounded-lg border border-border/70 bg-card shadow-sm">
       <div className="border-b border-border/70 px-4 py-3">
-        <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-          <div>
-            <div className="flex items-center gap-2">
-              <Send className="h-5 w-5 text-muted-foreground" />
-              <h1 className="text-xl font-semibold">{t("sent")}</h1>
-            </div>
-            <p className="mt-1 text-sm text-muted-foreground">{t("messagesYouSent")}</p>
-          </div>
+        <div className="flex items-center gap-2">
+          <Star className="h-5 w-5 fill-amber-400 text-amber-500" />
+          <h1 className="text-xl font-semibold">{t("starred")}</h1>
         </div>
+        <p className="mt-1 text-sm text-muted-foreground">Emails you marked for quick access.</p>
       </div>
 
       <section className="min-h-0 flex-1 overflow-y-auto">
@@ -61,13 +50,10 @@ export function SentPage() {
               <EmailList
                 emails={pagination.items}
                 selectedEmailId={selectedEmail?.id}
-                onPreview={(email) => {
-                  selectEmail(email);
-                  navigate(`/email/${email.id}`, { state: { from: "/sent" } });
-                }}
+                onPreview={selectEmail}
                 onOpen={(email) => {
                   selectEmail(email);
-                  navigate(`/email/${email.id}`, { state: { from: "/sent" } });
+                  navigate(`/email/${email.id}`, { state: { from: "/starred" } });
                 }}
                 onToggleStarred={toggleStarred}
               />

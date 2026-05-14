@@ -44,4 +44,8 @@ export class CreateEmailDto {
   @IsOptional()
   @IsBoolean()
   isRead?: boolean;
+
+  @IsOptional()
+  @IsBoolean()
+  isStarred?: boolean;
 }

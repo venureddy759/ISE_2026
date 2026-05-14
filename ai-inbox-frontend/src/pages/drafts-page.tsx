@@ -1,16 +1,16 @@
-import { Send } from "lucide-react";
+import { FileText } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { EmailList } from "@/components/inbox/email-list";
 import { EmailPagination, getPaginatedEmails } from "@/components/inbox/email-pagination";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useTranslation } from "@/i18n/use-translation";
+import { useComposeStore } from "@/store/compose-store";
 import { useInboxStore } from "@/store/inbox-store";
 
-export function SentPage() {
+export function DraftsPage() {
   const { t } = useTranslation();
   const [page, setPage] = useState(1);
-  const navigate = useNavigate();
+  const openCompose = useComposeStore((state) => state.openCompose);
   const {
     emails,
     selectedEmail,
@@ -29,7 +29,7 @@ export function SentPage() {
     }
 
     setPage(1);
-    void fetchFolderEmails("sent");
+    void fetchFolderEmails("draft");
   }, [category, fetchFolderEmails, setCategory]);
 
   const pagination = useMemo(() => getPaginatedEmails(emails, page), [emails, page]);
@@ -37,15 +37,11 @@ export function SentPage() {
   return (
     <div className="flex h-[calc(100vh-7rem)] min-h-[620px] flex-col overflow-hidden rounded-lg border border-border/70 bg-card shadow-sm">
       <div className="border-b border-border/70 px-4 py-3">
-        <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-          <div>
-            <div className="flex items-center gap-2">
-              <Send className="h-5 w-5 text-muted-foreground" />
-              <h1 className="text-xl font-semibold">{t("sent")}</h1>
-            </div>
-            <p className="mt-1 text-sm text-muted-foreground">{t("messagesYouSent")}</p>
-          </div>
+        <div className="flex items-center gap-2">
+          <FileText className="h-5 w-5 text-muted-foreground" />
+          <h1 className="text-xl font-semibold">{t("drafts")}</h1>
         </div>
+        <p className="mt-1 text-sm text-muted-foreground">Messages saved before sending.</p>
       </div>
 
       <section className="min-h-0 flex-1 overflow-y-auto">
@@ -63,11 +59,11 @@ export function SentPage() {
                 selectedEmailId={selectedEmail?.id}
                 onPreview={(email) => {
                   selectEmail(email);
-                  navigate(`/email/${email.id}`, { state: { from: "/sent" } });
+                  openCompose(email);
                 }}
                 onOpen={(email) => {
                   selectEmail(email);
-                  navigate(`/email/${email.id}`, { state: { from: "/sent" } });
+                  openCompose(email);
                 }}
                 onToggleStarred={toggleStarred}
               />

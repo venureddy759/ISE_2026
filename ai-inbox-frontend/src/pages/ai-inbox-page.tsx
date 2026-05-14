@@ -19,10 +19,11 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { aiService, type AiDashboard, type AiDashboardEmail } from "@/services/ai-service";
 import { useAuthStore } from "@/store/auth-store";
 import { useInboxStore } from "@/store/inbox-store";
 import type { Email } from "@/types/email";
-import { formatDistanceToNow } from "@/utils/date";
+import { formatExactDate } from "@/utils/date";
 
 type SummaryKey = "all" | "attention" | "deadlines" | "waiting" | "resolved";
 
@@ -30,8 +31,8 @@ type SummarySection = {
   key: SummaryKey;
   title: string;
   description: string;
-  emails: Email[];
-  reason: (email: Email) => string;
+  emails: Array<Email | AiDashboardEmail>;
+  reason: (email: Email | AiDashboardEmail) => string;
 };
 
 function getSummary(email: { summary?: unknown }) {
@@ -46,6 +47,42 @@ function getSummary(email: { summary?: unknown }) {
   return "No AI summary available yet.";
 }
 
+function formatDeadlineLabel(value?: string | null) {
+  if (!value) {
+    return "No deadline";
+  }
+
+  const deadline = new Date(value);
+  if (Number.isNaN(deadline.getTime())) {
+    return "No deadline";
+  }
+
+  const today = new Date();
+  const startOfToday = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+  const startOfDeadline = new Date(deadline.getFullYear(), deadline.getMonth(), deadline.getDate());
+  const dayDiff = Math.round(
+    (startOfDeadline.getTime() - startOfToday.getTime()) / (1000 * 60 * 60 * 24),
+  );
+
+  if (dayDiff < 0) {
+    return "Expired";
+  }
+
+  if (dayDiff === 0) {
+    return "Today";
+  }
+
+  if (dayDiff === 1) {
+    return "Tomorrow";
+  }
+
+  return deadline.toLocaleDateString(undefined, {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
+}
+
 function SummaryModal({
   open,
   section,
@@ -57,7 +94,7 @@ function SummaryModal({
   section: SummarySection | null;
   sections: SummarySection[];
   onClose: () => void;
-  onOpenEmail: (email: Email) => void;
+  onOpenEmail: (email: Email | AiDashboardEmail) => void;
 }) {
   if (!open || !section) {
     return null;
@@ -125,7 +162,7 @@ function SummaryModal({
                             <Badge>{email.priority}</Badge>
                           </div>
                           <p className="mt-1 text-sm text-muted-foreground">
-                            {email.sender} - {formatDistanceToNow(email.createdAt)}
+                            {email.sender} - {email.createdAt ? formatExactDate(email.createdAt) : "Unknown date"}
                           </p>
                         </div>
                         <Button variant="outline" size="sm" onClick={() => onOpenEmail(email)}>
@@ -154,15 +191,17 @@ function SummaryModal({
 export function AiInboxPage() {
   const navigate = useNavigate();
   const [activeSummary, setActiveSummary] = useState<SummaryKey | null>(null);
+  const [dashboard, setDashboard] = useState<AiDashboard | null>(null);
+  const [dashboardLoading, setDashboardLoading] = useState(false);
+  const [dashboardError, setDashboardError] = useState<string | null>(null);
   const user = useAuthStore((state) => state.user);
   const { emails, loading, fetchEmails } = useInboxStore();
   const firstName = user?.name?.trim().split(/\s+/)[0] || "there";
   const highPriorityEmails = emails.filter((email) => email.priority === "High");
-  const unreadEmails = emails.filter((email) => !email.isRead);
   const emailsWithTasks = emails.filter((email) => (email.tasks ?? []).length > 0);
   const waitingForReplies = emails.filter((email) => (email.replySuggestions ?? []).length > 0);
   const autoResolved = emails.filter((email) => email.isRead && (email.tasks ?? []).length === 0);
-  const importantEmails = highPriorityEmails.length ? highPriorityEmails : emails.slice(0, 3);
+  const importantEmails = dashboard?.importantForYou ?? [];
   const recommendedActions = emails
     .flatMap((email) => (email.tasks ?? []).map((task) => ({ ...task, email })))
     .slice(0, 4);
@@ -170,6 +209,23 @@ export function AiInboxPage() {
   useEffect(() => {
     void fetchEmails();
   }, [fetchEmails]);
+
+  useEffect(() => {
+    async function fetchDashboard() {
+      setDashboardLoading(true);
+      setDashboardError(null);
+      try {
+        setDashboard(await aiService.getDashboard());
+      } catch (error) {
+        setDashboardError("AI dashboard data is unavailable right now.");
+        console.error(error);
+      } finally {
+        setDashboardLoading(false);
+      }
+    }
+
+    void fetchDashboard();
+  }, []);
 
   const summarySections = useMemo<SummarySection[]>(() => [
     {
@@ -183,39 +239,34 @@ export function AiInboxPage() {
       key: "attention",
       title: "Needs Attention",
       description: "Unread or high-priority emails that likely need your next decision.",
-      emails: Array.from(new Map([...unreadEmails, ...highPriorityEmails].map((email) => [email.id, email])).values()),
-      reason: (email) =>
-        email.priority === "High"
-          ? "It is marked high priority and contains work that may need immediate handling."
-          : "It is still unread, so AI is keeping it in your focus queue.",
+      emails: dashboard?.needsAttention ?? [],
+      reason: () => "The classification model marked this email as needing attention.",
     },
     {
       key: "deadlines",
       title: "Deadlines",
       description: "Emails with extracted tasks or action items that can become reminders.",
-      emails: emailsWithTasks,
-      reason: (email) =>
-        `AI found ${(email.tasks ?? []).length} extracted action item(s), so this may need scheduling or follow-up.`,
+      emails: dashboard?.deadlines ?? [],
+      reason: () => "The classification model marked this email as having a deadline in the next 7 days.",
     },
     {
       key: "waiting",
       title: "Waiting for Replies",
       description: "Conversations where AI found reply suggestions or response paths.",
-      emails: waitingForReplies,
-      reason: (email) =>
-        `AI generated ${(email.replySuggestions ?? []).length} suggested reply option(s), so this conversation is response-ready.`,
+      emails: dashboard?.waitingForReplies ?? [],
+      reason: () => "The classification model marked this email as waiting for your response.",
     },
     {
       key: "resolved",
       title: "Auto Resolved",
       description: "Read messages without extracted tasks that appear low effort or already handled.",
-      emails: autoResolved,
+      emails: dashboard?.autoResolved ?? [],
       reason: () => "It is already read and AI found no pending extracted tasks.",
     },
-  ], [autoResolved, emails, emailsWithTasks, highPriorityEmails, unreadEmails, waitingForReplies]);
+  ], [dashboard, emails]);
   const activeSection = summarySections.find((section) => section.key === activeSummary) ?? null;
 
-  if (loading) {
+  if (loading || dashboardLoading) {
     return (
       <div className="space-y-4">
         <Skeleton className="h-72 w-full rounded-2xl" />
@@ -228,7 +279,7 @@ export function AiInboxPage() {
     {
       label: "Needs Attention",
       summaryKey: "attention" as const,
-      value: highPriorityEmails.length,
+      value: dashboard?.needsAttentionCount ?? highPriorityEmails.length,
       helper: "important emails",
       icon: AlertCircle,
       className: "border-rose-200 bg-rose-50/80 text-rose-600 dark:border-rose-900/60 dark:bg-rose-950/20",
@@ -236,7 +287,7 @@ export function AiInboxPage() {
     {
       label: "Deadlines",
       summaryKey: "deadlines" as const,
-      value: emailsWithTasks.length,
+      value: dashboard?.deadlinesCount ?? emailsWithTasks.length,
       helper: "in the next 7 days",
       icon: CalendarClock,
       className: "border-orange-200 bg-orange-50/80 text-orange-600 dark:border-orange-900/60 dark:bg-orange-950/20",
@@ -244,7 +295,7 @@ export function AiInboxPage() {
     {
       label: "Waiting for Replies",
       summaryKey: "waiting" as const,
-      value: waitingForReplies.length,
+      value: dashboard?.waitingForRepliesCount ?? waitingForReplies.length,
       helper: "conversations",
       icon: Clock3,
       className: "border-blue-200 bg-blue-50/80 text-blue-600 dark:border-blue-900/60 dark:bg-blue-950/20",
@@ -252,7 +303,7 @@ export function AiInboxPage() {
     {
       label: "Auto Resolved",
       summaryKey: "resolved" as const,
-      value: autoResolved.length,
+      value: dashboard?.autoResolvedCount ?? autoResolved.length,
       helper: "emails handled",
       icon: CheckCircle2,
       className: "border-emerald-200 bg-emerald-50/80 text-emerald-600 dark:border-emerald-900/60 dark:bg-emerald-950/20",
@@ -294,6 +345,9 @@ export function AiInboxPage() {
             </button>
           ))}
         </div>
+        {dashboardError && (
+          <p className="mt-4 text-sm text-muted-foreground">{dashboardError}</p>
+        )}
       </Card>
 
       <Card className="rounded-2xl border-rose-100 bg-rose-50/30 p-5 shadow-none dark:border-rose-900/40 dark:bg-rose-950/10 md:p-6">
@@ -308,8 +362,14 @@ export function AiInboxPage() {
         </div>
 
         <div className="mt-6 space-y-3">
-          {importantEmails.map((email, index) => {
-            const firstTask = (email.tasks ?? [])[0]?.text ?? "Review and respond";
+          {importantEmails.length === 0 && (
+            <div className="rounded-xl border border-dashed border-rose-100 bg-card p-5 text-sm text-muted-foreground dark:border-rose-900/30">
+              No high priority or high severity emails found yet.
+            </div>
+          )}
+          {importantEmails.map((email) => {
+            const firstTask = email.extractedTask ?? "Review and respond";
+            const deadline = formatDeadlineLabel(email.deadline);
             return (
               <div
                 key={email.id}
@@ -325,7 +385,7 @@ export function AiInboxPage() {
                 <div>
                   <p className="text-xs font-semibold">Deadline</p>
                   <p className="mt-2 text-sm font-semibold text-rose-600">
-                    {index === 0 ? "Today" : index === 1 ? "Tomorrow" : "No deadline"}
+                    {deadline}
                   </p>
                 </div>
                 <div>
@@ -335,14 +395,14 @@ export function AiInboxPage() {
                 <div className="space-y-2 text-sm text-muted-foreground">
                   <p className="flex items-center gap-2">
                     <Calendar className="h-4 w-4" />
-                    {formatDistanceToNow(email.createdAt)}
+                    {email.createdAt ? formatExactDate(email.createdAt) : "Unknown date"}
                   </p>
                   <Badge>{email.category}</Badge>
                 </div>
                 <Button
                   variant="outline"
                   className="rounded-xl border-rose-200 text-rose-600 hover:bg-rose-50 dark:border-rose-900"
-                  onClick={() => navigate(`/email/${email.id}`)}
+                  onClick={() => navigate(`/email/${email.id}`, { state: { from: "/ai-inbox" } })}
                 >
                   Open Email
                   <ArrowRight className="ml-2 h-4 w-4" />
@@ -413,7 +473,7 @@ export function AiInboxPage() {
         onClose={() => setActiveSummary(null)}
         onOpenEmail={(email) => {
           setActiveSummary(null);
-          navigate(`/email/${email.id}`);
+          navigate(`/email/${email.id}`, { state: { from: "/ai-inbox" } });
         }}
       />
     </div>

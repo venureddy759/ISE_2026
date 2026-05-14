@@ -42,6 +42,30 @@ export class Email {
   @Column({ type: "text", nullable: true })
   summary!: string | null;
 
+  @Column({ type: "varchar", nullable: true })
+  severity!: string | null;
+
+  @Column({ type: "timestamp with time zone", nullable: true })
+  deadline!: Date | null;
+
+  @Column({ type: "text", nullable: true })
+  extractedTask!: string | null;
+
+  @Column({ type: "boolean", nullable: true })
+  shouldCreateTask!: boolean | null;
+
+  @Column({ type: "boolean", nullable: true })
+  needsAttention!: boolean | null;
+
+  @Column({ type: "boolean", nullable: true })
+  deadlineNext7Days!: boolean | null;
+
+  @Column({ type: "boolean", nullable: true })
+  waitingForResponse!: boolean | null;
+
+  @Column({ type: "boolean", nullable: true })
+  autoResponse!: boolean | null;
+
   @Column({ type: "enum", enum: EmailCategory })
   category!: EmailCategory;
 
@@ -53,6 +77,9 @@ export class Email {
 
   @Column({ default: false })
   isRead!: boolean;
+
+  @Column({ default: false })
+  isStarred!: boolean;
 
   @CreateDateColumn()
   createdAt!: Date;
