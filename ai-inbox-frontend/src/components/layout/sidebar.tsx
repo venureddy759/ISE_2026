@@ -1,4 +1,4 @@
-import { Bot, Inbox, Pencil, Search, Send, Star, Tag, FileText, X, ChevronDown, Trash2 } from "lucide-react";
+import { Bot, Inbox, Pencil, Send, Star, Tag, FileText, X, ChevronDown, Trash2 } from "lucide-react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "@/i18n/use-translation";
@@ -12,7 +12,6 @@ const links = [
   { to: "/drafts", labelKey: "drafts" as const, icon: FileText, countKey: "draft" as const },
   { to: "/starred", labelKey: "starred" as const, icon: Star, countKey: "starred" as const },
   { to: "/bin", labelKey: "bin" as const, icon: Trash2, countKey: "bin" as const },
-  { to: "/search", labelKey: "search" as const, icon: Search },
 ];
 
 export function Sidebar({
