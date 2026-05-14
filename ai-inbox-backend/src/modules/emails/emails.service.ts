@@ -18,11 +18,12 @@ export class EmailsService {
     private readonly emailRepliesRepository: Repository<EmailReply>,
   ) {}
 
-  async findAll(filterEmailsDto: FilterEmailsDto) {
+  async findAll(filterEmailsDto: FilterEmailsDto, userId: string) {
     const queryBuilder = this.emailsRepository
       .createQueryBuilder("email")
       .leftJoinAndSelect("email.replies", "replies")
       .leftJoinAndSelect("email.user", "user")
+      .where("email.userId = :userId", { userId })
       .orderBy("email.createdAt", "DESC");
 
     if (filterEmailsDto.search) {
@@ -47,9 +48,9 @@ export class EmailsService {
     return queryBuilder.getMany();
   }
 
-  async findOne(id: string) {
+  async findOne(id: string, userId?: string) {
     const email = await this.emailsRepository.findOne({
-      where: { id },
+      where: userId ? { id, userId } : { id },
       relations: ["replies", "user"],
     });
 
@@ -60,9 +61,10 @@ export class EmailsService {
     return email;
   }
 
-  async create(createEmailDto: CreateEmailDto) {
+  async create(createEmailDto: CreateEmailDto, userId?: string) {
     const email = this.emailsRepository.create({
       ...createEmailDto,
+      userId: userId ?? createEmailDto.userId,
       translatedContent: createEmailDto.translatedContent ?? null,
       summary: createEmailDto.summary ?? null,
       folder: createEmailDto.folder,
@@ -74,42 +76,47 @@ export class EmailsService {
     return this.emailsRepository.save(email);
   }
 
-  async update(id: string, updateEmailDto: UpdateEmailDto) {
-    const email = await this.findOne(id);
-    Object.assign(email, updateEmailDto);
+  async update(id: string, updateEmailDto: UpdateEmailDto, userId?: string) {
+    const email = await this.findOne(id, userId);
+    const { userId: _ignoredUserId, ...safeUpdateEmailDto } = updateEmailDto;
+    Object.assign(email, safeUpdateEmailDto);
     return this.emailsRepository.save(email);
   }
 
-  async markAsRead(id: string) {
-    const email = await this.findOne(id);
+  async markAsRead(id: string, userId?: string) {
+    const email = await this.findOne(id, userId);
     email.isRead = true;
     return this.emailsRepository.save(email);
   }
 
-  async remove(id: string) {
-    const email = await this.findOne(id);
+  async remove(id: string, userId?: string) {
+    const email = await this.findOne(id, userId);
     email.folder = EmailFolder.BIN;
     return this.emailsRepository.save(email);
   }
 
-  findByCategory(category: string) {
+  findByCategory(category: string, userId: string) {
     return this.emailsRepository.find({
-      where: { category: category as Email["category"] },
+      where: { category: category as Email["category"], userId },
       relations: ["replies", "user"],
       order: { createdAt: "DESC" },
     });
   }
 
-  async findReplies(emailId: string) {
-    await this.findOne(emailId);
+  async findReplies(emailId: string, userId?: string) {
+    await this.findOne(emailId, userId);
     return this.emailRepliesRepository.find({
       where: { emailId },
       order: { createdAt: "DESC" },
     });
   }
 
-  async createReply(emailId: string, createEmailReplyDto: CreateEmailReplyDto) {
-    await this.findOne(emailId);
+  async createReply(
+    emailId: string,
+    createEmailReplyDto: CreateEmailReplyDto,
+    userId?: string,
+  ) {
+    await this.findOne(emailId, userId);
 
     const reply = this.emailRepliesRepository.create({
       emailId,

@@ -13,8 +13,10 @@ export class SummarizationService {
     private readonly emailRepository: Repository<Email>,
   ) {}
 
-  async summarizeEmail(emailId: string) {
-    const email = await this.emailRepository.findOne({ where: { id: emailId } });
+  async summarizeEmail(emailId: string, userId?: string) {
+    const email = await this.emailRepository.findOne({
+      where: userId ? { id: emailId, userId } : { id: emailId },
+    });
 
     if (!email) {
       throw new NotFoundException("Email not found");
