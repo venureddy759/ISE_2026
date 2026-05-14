@@ -4,14 +4,18 @@ import { useTheme } from "next-themes";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useTranslation } from "@/i18n/use-translation";
 import { useAuthStore } from "@/store/auth-store";
+import { useInboxStore } from "@/store/inbox-store";
 import { Sidebar } from "./sidebar";
 
 export function AppShell() {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const { theme, setTheme } = useTheme();
   const navigate = useNavigate();
   const clearSession = useAuthStore((state) => state.clearSession);
+  const resetInbox = useInboxStore((state) => state.reset);
 
   return (
     <div className="flex min-h-screen bg-background">
@@ -24,12 +28,12 @@ export function AppShell() {
             </Button>
             <div className="hidden items-center gap-2 md:flex">
               <PanelLeft className="h-4 w-4 text-muted-foreground" />
-              <span className="text-sm text-muted-foreground">Mail</span>
+              <span className="text-sm text-muted-foreground">{t("mail")}</span>
             </div>
             <div className="relative ml-auto max-w-2xl flex-1">
               <Search className="pointer-events-none absolute left-3 top-3.5 h-4 w-4 text-muted-foreground" />
               <Input
-                placeholder="Search mail"
+                placeholder={t("searchMail")}
                 className="rounded-full border-border/70 bg-muted/50 pl-9"
                 onKeyDown={(event) => {
                   if (event.key === "Enter") {
@@ -53,11 +57,12 @@ export function AppShell() {
               className="rounded-full px-3"
               onClick={() => {
                 clearSession();
+                resetInbox();
                 navigate("/login");
               }}
             >
               <UserCircle2 className="mr-2 h-4 w-4" />
-              <span className="hidden sm:inline">Account</span>
+              <span className="hidden sm:inline">{t("account")}</span>
               <LogOut className="ml-2 h-4 w-4" />
             </Button>
           </div>

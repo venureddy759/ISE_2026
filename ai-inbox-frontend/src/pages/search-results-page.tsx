@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { mockEmails } from "@/data/mock-emails";
+import { normalizeEmail } from "@/services/email-service";
 
 const starterSearches = [
   "emails about interview prep",
@@ -25,7 +26,7 @@ export function SearchResultsPage() {
     }
 
     const normalized = query.toLowerCase();
-    return mockEmails.filter((email) =>
+    return mockEmails.map(normalizeEmail).filter((email) =>
       [email.subject, email.preview, email.category, email.content]
         .join(" ")
         .toLowerCase()

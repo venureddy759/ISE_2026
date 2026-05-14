@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { EmailCategory } from "src/common/enums/email-category.enum";
+import { EmailCategory } from "../../common/enums/email-category.enum";
 
 @Injectable()
 export class CategorizationService {

@@ -5,8 +5,8 @@ import {
   OneToMany,
   PrimaryGeneratedColumn,
 } from "typeorm";
-import { Email } from "src/modules/emails/entities/email.entity";
-import { SearchHistory } from "src/modules/search/entities/search-history.entity";
+import { Email } from "../../emails/entities/email.entity";
+import { SearchHistory } from "../../search/entities/search-history.entity";
 
 @Entity("users")
 export class User {
@@ -22,7 +22,7 @@ export class User {
   @Column()
   password!: string;
 
-  @Column({ default: "en" })
+  @Column({ default: "en-IN" })
   preferredLanguage!: string;
 
   @CreateDateColumn()

@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { mockEmails } from "@/data/mock-emails";
-import type { Email, EmailCategory } from "@/types/email";
-import { emailService } from "@/services/email-service";
+import type { Email, EmailCategory, EmailFolder } from "@/types/email";
+import { emailService, normalizeEmail } from "@/services/email-service";
 
 type InboxState = {
   emails: Email[];
@@ -9,12 +9,13 @@ type InboxState = {
   category: EmailCategory | "All";
   loading: boolean;
   search: string;
-  fetchEmails: () => Promise<void>;
+  fetchEmails: (folder?: EmailFolder) => Promise<void>;
   selectEmail: (email: Email) => void;
   clearSelectedEmail: () => void;
   markAsRead: (emailId: string) => void;
   setCategory: (category: EmailCategory | "All") => void;
   setSearch: (search: string) => void;
+  reset: () => void;
 };
 
 export const useInboxStore = create<InboxState>((set, get) => ({
@@ -23,25 +24,33 @@ export const useInboxStore = create<InboxState>((set, get) => ({
   category: "All",
   loading: false,
   search: "",
-  async fetchEmails() {
+  async fetchEmails(folder = "inbox") {
     set({ loading: true });
     const { category, search } = get();
     try {
       const emails = await emailService.list({
-        category: category === "All" ? undefined : category,
+        category: category === "All" || category === "Urgent" ? undefined : category,
         search: search || undefined,
+        folder,
       });
+      const visibleEmails =
+        category === "Urgent" ? emails.filter((email) => email.priority === "High") : emails;
 
       const selectedEmail =
-        emails.find((email) => email.id === get().selectedEmail?.id) ?? emails[0] ?? null;
+        visibleEmails.find((email) => email.id === get().selectedEmail?.id) ??
+        visibleEmails[0] ??
+        null;
 
       set({
-        emails,
+        emails: visibleEmails,
         selectedEmail,
       });
     } catch (error) {
-      const filteredEmails = mockEmails.filter((email) => {
-        const categoryMatch = category === "All" || email.category === category;
+      const filteredEmails = mockEmails.map(normalizeEmail).filter((email) => {
+        const categoryMatch =
+          category === "All" ||
+          (category === "Urgent" ? email.priority === "High" : email.category === category);
+        const folderMatch = (email.folder ?? "inbox") === folder;
         const searchMatch =
           !search ||
           [email.subject, email.preview, email.content, email.category]
@@ -49,7 +58,7 @@ export const useInboxStore = create<InboxState>((set, get) => ({
             .toLowerCase()
             .includes(search.toLowerCase());
 
-        return categoryMatch && searchMatch;
+        return categoryMatch && folderMatch && searchMatch;
       });
 
       set({
@@ -89,5 +98,14 @@ export const useInboxStore = create<InboxState>((set, get) => ({
   },
   setSearch(search) {
     set({ search });
+  },
+  reset() {
+    set({
+      emails: [],
+      selectedEmail: null,
+      category: "All",
+      loading: false,
+      search: "",
+    });
   },
 }));

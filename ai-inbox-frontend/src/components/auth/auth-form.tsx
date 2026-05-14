@@ -5,31 +5,20 @@ import { Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { auth, googleProvider } from "@/firebase";
 import { authService } from "@/services/auth-service";
-import type { AuthResponse } from "@/types/auth";
 import { useAuthStore } from "@/store/auth-store";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { useTranslation } from "@/i18n/use-translation";
 
 export function AuthForm({ mode }: { mode: "login" | "register" }) {
+  const { t } = useTranslation();
   const [loading, setLoading] = useState(false);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("demo@semanticinbox.app");
   const [password, setPassword] = useState("password123");
   const setSession = useAuthStore((state) => state.setSession);
   const navigate = useNavigate();
-
-  function getMockAuthResponse(): AuthResponse {
-    return {
-      accessToken: "mock-jwt-token",
-      user: {
-        id: "demo-user",
-        name: name || "Demo User",
-        email,
-        preferredLanguage: "en",
-      },
-    };
-  }
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -43,10 +32,7 @@ export function AuthForm({ mode }: { mode: "login" | "register" }) {
       toast.success(mode === "login" ? "Welcome back" : "Account created");
       navigate("/dashboard");
     } catch (error) {
-      const mockResponse = getMockAuthResponse();
-      setSession(mockResponse.accessToken, mockResponse.user);
-      toast.success("Demo mode enabled with mock auth session");
-      navigate("/dashboard");
+      toast.error(mode === "login" ? "Login failed. Check your email and password." : "Registration failed.");
       console.error(error);
     } finally {
       setLoading(false);
@@ -77,7 +63,7 @@ export function AuthForm({ mode }: { mode: "login" | "register" }) {
           Semantic Inbox
         </p>
         <h1 className="mt-3 text-3xl font-extrabold">
-          {mode === "login" ? "Sign in to your workspace" : "Create your inbox workspace"}
+          {mode === "login" ? t("signInWorkspace") : t("createWorkspace")}
         </h1>
       </div>
       <form className="space-y-4" onSubmit={handleSubmit}>
@@ -85,7 +71,7 @@ export function AuthForm({ mode }: { mode: "login" | "register" }) {
           <Input
             value={name}
             onChange={(event) => setName(event.target.value)}
-            placeholder="Name"
+            placeholder={t("name")}
             required
           />
         )}
@@ -93,18 +79,18 @@ export function AuthForm({ mode }: { mode: "login" | "register" }) {
           type="email"
           value={email}
           onChange={(event) => setEmail(event.target.value)}
-          placeholder="Email"
+          placeholder={t("email")}
           required
         />
         <Input
           type="password"
           value={password}
           onChange={(event) => setPassword(event.target.value)}
-          placeholder="Password"
+          placeholder={t("password")}
           required
         />
         <Button className="w-full" type="submit" disabled={loading}>
-          {loading ? <LoaderCircle className="h-4 w-4 animate-spin" /> : mode === "login" ? "Login" : "Register"}
+          {loading ? <LoaderCircle className="h-4 w-4 animate-spin" /> : mode === "login" ? t("login") : t("register")}
         </Button>
         <Button
           className="w-full"
@@ -114,13 +100,13 @@ export function AuthForm({ mode }: { mode: "login" | "register" }) {
           onClick={handleGoogleAuth}
         >
           <Chrome className="mr-2 h-4 w-4" />
-          {mode === "login" ? "Login with Google" : "Register with Google"}
+          {mode === "login" ? t("loginWithGoogle") : t("registerWithGoogle")}
         </Button>
       </form>
       <p className="mt-4 text-sm text-muted-foreground">
-        {mode === "login" ? "Need an account?" : "Already have an account?"}{" "}
+        {mode === "login" ? t("needAccount") : t("alreadyHaveAccount")}{" "}
         <Link className="font-semibold text-sky-400" to={mode === "login" ? "/register" : "/login"}>
-          {mode === "login" ? "Register" : "Login"}
+          {mode === "login" ? t("register") : t("login")}
         </Link>
       </p>
     </Card>

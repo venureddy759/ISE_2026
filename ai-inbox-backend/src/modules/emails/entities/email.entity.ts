@@ -2,13 +2,15 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinColumn,
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
 } from "typeorm";
-import { EmailCategory } from "src/common/enums/email-category.enum";
-import { EmailPriority } from "src/common/enums/email-priority.enum";
-import { User } from "src/modules/users/entities/user.entity";
+import { EmailCategory } from "../../../common/enums/email-category.enum";
+import { EmailFolder } from "../../../common/enums/email-folder.enum";
+import { EmailPriority } from "../../../common/enums/email-priority.enum";
+import { User } from "../../users/entities/user.entity";
 import { EmailReply } from "./email-reply.entity";
 
 @Entity("emails")
@@ -18,6 +20,9 @@ export class Email {
 
   @Column("uuid")
   userId!: string;
+
+  @Column({ type: "enum", enum: EmailFolder, default: EmailFolder.INBOX })
+  folder!: EmailFolder;
 
   @Column()
   sender!: string;
@@ -53,6 +58,7 @@ export class Email {
   createdAt!: Date;
 
   @ManyToOne(() => User, (user) => user.emails, { onDelete: "CASCADE" })
+  @JoinColumn({ name: "userId" })
   user!: User;
 
   @OneToMany(() => EmailReply, (emailReply) => emailReply.email, {

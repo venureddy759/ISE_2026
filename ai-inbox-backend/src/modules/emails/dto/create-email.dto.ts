@@ -1,10 +1,15 @@
 import { IsBoolean, IsEnum, IsOptional, IsString, IsUUID } from "class-validator";
-import { EmailCategory } from "src/common/enums/email-category.enum";
-import { EmailPriority } from "src/common/enums/email-priority.enum";
+import { EmailCategory } from "../../../common/enums/email-category.enum";
+import { EmailFolder } from "../../../common/enums/email-folder.enum";
+import { EmailPriority } from "../../../common/enums/email-priority.enum";
 
 export class CreateEmailDto {
   @IsUUID()
   userId!: string;
+
+  @IsOptional()
+  @IsEnum(EmailFolder)
+  folder?: EmailFolder;
 
   @IsString()
   sender!: string;

@@ -1,6 +1,6 @@
 import { IsBoolean, IsEnum, IsOptional, IsString, IsUUID } from "class-validator";
-import { EmailCategory } from "src/common/enums/email-category.enum";
-import { EmailPriority } from "src/common/enums/email-priority.enum";
+import { EmailCategory } from "../../../common/enums/email-category.enum";
+import { EmailPriority } from "../../../common/enums/email-priority.enum";
 
 export class UpdateEmailDto {
   @IsOptional()
