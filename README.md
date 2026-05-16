@@ -1,212 +1,220 @@
-Policy Overload & Citizen Awareness Platform
+# AI Inbox Web Application
 
-A full-stack web application designed to help citizens and small businesses stay updated with government policy changes, notifications, and amendments in a simplified and accessible way. and provides the following software qualities:
+AI Inbox is a full-stack email management web application with:
 
-Security —Security is ensured using Firebase Authentication and JWT-based token verification.
+- React + Vite frontend
+- NestJS backend
+- PostgreSQL database
+- Firebase Authentication
+- AI services for email analysis, summarization, translation, and classification
 
-Usability —The application is designed with a mobile-first approach, providing a clean UI, simple navigation flow, and minimal user effort to access relevant policies.
+This guide explains how to run the original PostgreSQL-backed version of the project, without mock data mode.
 
-Reliability —Reliability is achieved through a modular architecture where each component (frontend, backend, AI, database) operates independently, ensuring stable and predictable system behavior.
+## Project structure
 
-Consistency —Consistency is maintained through reusable UI components, centralized theming, and standardized API responses, ensuring a uniform experience across the application
+```text
+ISE_2026/
+  ai-inbox-frontend/
+  ai-inbox-backend/
+```
 
+## Prerequisites
 
+Install the following before starting:
 
-Tech Stack:
-Frontend: Flutter, ReactJs
-Backend: Nest.js
-Database: PostgreSQL
-Authentication: Firebase
-AI: Gemini API
-Storage: Supabase
-Collaboration: GitHub, Jira
+- Node.js and npm
+- PostgreSQL
+- pgAdmin 4 or another PostgreSQL client
+- Firebase project credentials
+- Optional: local AI model server if you want AI analysis features enabled
 
-PolicyLens Complete Setup Guide:
+## 1. Database setup
 
-1. Clone the Repository
+1. Start PostgreSQL.
+2. Create a database named:
 
-git clone https://github.com/venureddy759/ISE_2026.git
-cd ISE_2026
+```text
+semantic_inbox
+```
 
-2. Frontend Setup (Web Frontend)
+3. Open pgAdmin or another PostgreSQL client.
+4. Run the SQL from:
 
-cd frontend
+```text
+ai-inbox-backend/schema.sql
+```
+
+This creates the required tables for users, emails, replies, and search history.
+
+## 2. Backend setup
+
+Open a terminal:
+
+```powershell
+cd ai-inbox-backend
 npm install
+copy .env.example .env
+```
+
+Update `.env` with your real configuration:
+
+```env
+PORT=3001
+JWT_SECRET=your-secret-key
+JWT_EXPIRES_IN=1d
+
+DB_HOST=localhost
+DB_PORT=5432
+DB_USERNAME=postgres
+DB_PASSWORD=your-postgres-password
+DB_NAME=semantic_inbox
+
+FIREBASE_PROJECT_ID=your-firebase-project-id
+FIREBASE_CLIENT_EMAIL=your-firebase-client-email
+FIREBASE_PRIVATE_KEY=your-firebase-private-key
+
+SARVAM_API_KEY=your-api-key-if-used
+AI_MODEL_BASE_URL=http://localhost:8000
+USE_MOCK_DATA=false
+```
+
+Start the backend:
+
+```powershell
+npm run start:dev
+```
+
+Backend URL:
+
+```text
+http://localhost:3001/api
+```
+
+## 3. Frontend setup
+
+Open another terminal:
+
+```powershell
+cd ai-inbox-frontend
+npm install
+copy .env.example .env
+```
+
+Update frontend `.env`:
+
+```env
+VITE_API_BASE_URL=http://localhost:3001/api
+VITE_FIREBASE_API_KEY=your-firebase-api-key
+VITE_FIREBASE_AUTH_DOMAIN=your-firebase-auth-domain
+VITE_FIREBASE_PROJECT_ID=your-firebase-project-id
+VITE_FIREBASE_STORAGE_BUCKET=your-firebase-storage-bucket
+VITE_FIREBASE_MESSAGING_SENDER_ID=your-firebase-messaging-sender-id
+VITE_FIREBASE_APP_ID=your-firebase-app-id
+VITE_FIREBASE_MEASUREMENT_ID=your-firebase-measurement-id
+```
+
+Start the frontend:
+
+```powershell
 npm run dev
+```
 
-Frontend runs at:
+Frontend URL:
 
-Vite
+```text
 http://localhost:5173
+```
 
+If port `5173` is already in use, Vite may automatically start on another port such as `5174`, `5175`, or `5176`.
 
-3. Backend Setup (NestJS)
+## 4. AI service setup
 
-cd backend
-npm install
-npm run start
+If using a local AI model server, start it separately before using AI analysis features.
 
-Backend runs at:
+Expected backend configuration:
 
-http://localhost:3000
+```env
+AI_MODEL_BASE_URL=http://localhost:8000
+```
 
+The backend calls:
 
-4. Frontend–Backend Connection
+```text
+POST /analyze
+```
 
-Frontend sends requests to:
+on that model server.
 
-Writing
+## 5. Startup order
 
-http://localhost:3000
+Start services in this order:
 
-✅ Backend must run before testing frontend.
+```text
+1. PostgreSQL
+2. AI model server, if required
+3. Backend
+4. Frontend
+```
 
+## 6. Common issues
 
-5. Authentication (Current Implementation)
+### Backend says unable to connect to database
 
-Dummy authentication using localStorage
-Login redirects to dashboard
-Protected routes implemented
-Logout functionality available
+Check:
 
+- PostgreSQL is running
+- database name is `semantic_inbox`
+- `.env` values are correct
+- port `5432` is open
 
-6. Common Frontend Issues and Fixes Tailwind CSS Not Working
+### Frontend cannot reach backend
 
-Ensure index.css contains:
+Check:
 
-Writing
+- backend is running on `http://localhost:3001/api`
+- frontend `.env` contains the correct `VITE_API_BASE_URL`
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+### Firebase login fails
 
-Then restart server.
+Check:
 
-npm Install Errors
+- frontend Firebase values are correct
+- backend Firebase admin credentials are correct
+- `FIREBASE_PRIVATE_KEY` preserves newline formatting correctly
 
+### AI features do not work
 
-rm -rf node_modules
-npm install
+Check:
 
+- local model server is running
+- `AI_MODEL_BASE_URL` points to the correct host
+- any external AI API keys are present if required
 
-7. Flutter Frontend Setup (Mobile App + Firebase)
+## 7. Build commands
 
-Install:
+Backend:
 
-Flutter SDK
-Android Studio or Visual Studio Code
-Emulator / physical device
-Firebase account
+```powershell
+npm run build
+```
 
-Check Flutter:
+Frontend:
 
-Writing
+```powershell
+npm run build
+```
 
-flutter doctor
+## 8. Application URLs
 
+```text
+Frontend: http://localhost:5173
+Backend:  http://localhost:3001/api
+AI model: http://localhost:8000
+```
 
-8. Configure Firebase for Android
-Update android/build.gradle
-Writing
+## 9. Notes
 
-classpath 'com.google.gms:google-services:4.3.15'
-
-Update android/app/build.gradle
-Writing
-
-apply plugin: 'com.google.gms.google-services'
-
-
-9. Install Flutter Firebase Dependencies
-
-Writing
-
-flutter pub add firebase_core
-flutter pub add firebase_auth
-
-OR manually:
-
-Writing
-
-dependencies:
-firebase_core: latest_version
-firebase_auth: latest_version
-
-Then:
-
-Writing
-
-flutter pub get
-
-10. Add Firebase Config File
-
-Place:
-
-Writing
-
-android/app/google-services.json
-
-⚠️ File removed from repo for security.
-
-11. Initialize Firebase in Flutter
-
-Update main.dart
-
-Writing
-
-import 'package/material.dart';
-import 'package/firebase_core.dart';
-
-void main() async {
-WidgetsFlutterBinding.ensureInitialized();
-await Firebase.initializeApp();
-runApp(MyApp());
-}
-
-12. Run Flutter App
-Writing
-
-flutter run
-
-13. Flutter Common Issues and Fixes
-App crashes on startup
-
-Ensure:
-
-Writing
-
-await Firebase.initializeApp();
-
-No Firebase App Found
-
-Firebase not initialized correctly.
-
-google-services.json Missing
-
-Ensure exact path:
-
-Writing
-
-android/app/google-services.json
-
-Build Errors
-
-Run:
-
-Writing
-
-flutter clean
-flutter pub get
-flutter run
-
-14. Final System Architecture
-
-Current architecture:
-
-Flutter frontend / web frontend
-Firebase authentication
-NestJS backend APIs
-PostgreSQL database
-Google Gemini AI integration
-file storage
-scraper/API integration
+- Set `USE_MOCK_DATA=false` for the original real-database version.
+- PostgreSQL must be available before backend startup.
+- Firebase is required for Google authentication in the original version.
+- pgAdmin is only a dashboard tool; PostgreSQL itself must also be installed and running.
