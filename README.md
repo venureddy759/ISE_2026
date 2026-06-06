@@ -1,4 +1,4 @@
-# AI Inbox Web Application
+#PriorityPilot
 
 AI Inbox is a full-stack email management web application with:
 
