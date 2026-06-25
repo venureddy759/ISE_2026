@@ -37,8 +37,10 @@ export class EmailAnalysisService {
     private readonly emailRepository: Repository<Email>,
   ) {}
 
-  async analyzeEmail(emailId: string) {
-    const email = await this.emailRepository.findOne({ where: { id: emailId } });
+  async analyzeEmail(emailId: string, userId?: string) {
+    const email = await this.emailRepository.findOne({
+      where: userId ? { id: emailId, userId } : { id: emailId },
+    });
 
     if (!email) {
       throw new NotFoundException("Email not found");
@@ -47,12 +49,15 @@ export class EmailAnalysisService {
     return this.analyzeAndClassifyEmail(email);
   }
 
-  async analyzeAllEmails() {
+  async analyzeAllEmails(userId?: string) {
     let analyzed = 0;
     let skipped = 0;
     let failed = 0;
 
-    const emails = await this.emailRepository.find({ order: { createdAt: "DESC" } });
+    const emails = await this.emailRepository.find({
+      where: userId ? { userId } : {},
+      order: { createdAt: "DESC" },
+    });
 
     for (let index = 0; index < emails.length; index += this.batchSize) {
       const batch = emails.slice(index, index + this.batchSize);
@@ -91,9 +96,9 @@ export class EmailAnalysisService {
     return { analyzed, skipped, failed };
   }
 
-  async getDashboard() {
+  async getDashboard(userId?: string) {
     const inboxEmails = await this.emailRepository.find({
-      where: { folder: EmailFolder.INBOX },
+      where: userId ? { folder: EmailFolder.INBOX, userId } : { folder: EmailFolder.INBOX },
       order: { createdAt: "DESC" },
     });
 

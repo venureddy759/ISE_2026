@@ -18,9 +18,9 @@ export class TranslationService {
     private readonly configService: ConfigService,
   ) {}
 
-  async translateEmail(emailId: string) {
+  async translateEmail(emailId: string, userId?: string) {
     const email = await this.emailsRepository.findOne({
-      where: { id: emailId },
+      where: userId ? { id: emailId, userId } : { id: emailId },
       relations: ["user"],
     });
 

@@ -15,8 +15,8 @@ export function AuthForm({ mode }: { mode: "login" | "register" }) {
   const { t } = useTranslation();
   const [loading, setLoading] = useState(false);
   const [name, setName] = useState("");
-  const [email, setEmail] = useState("demo@semanticinbox.app");
-  const [password, setPassword] = useState("password123");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const setSession = useAuthStore((state) => state.setSession);
   const navigate = useNavigate();
 
